@@ -14,37 +14,44 @@ params$pSign <- sign(params$p-0.5) * ifelse(params$p-0.5 < 0, 1-params$p, params
 params$pSign2 <- cut(params$pSign, breaks=c(seq(-1, -0.5, .1), -0.4, 0.4,seq(0.5, 1, .1)))
 
 #Create a palatte for easy differentiation of probabilities
-fillPal <- brewer.pal(9,"RdYlBu")
-fillPal <- fillPal[9:1]
+#fillPal <- brewer.pal(9,"RdYlBu")
+#fillPal <- fillPal[9:1]
 fillPal <- diverge_hsv(9)
 fillPal[5] <- "darkgray"
 fillPalGood <- fillPal
 
-makePSignMap <- function(geoGroup="Ecoregion", Timespan="1900-2015", fillPal=fillPalGood, ...){
+makePSignMap <- function(geoGroup="Ecoregion", Timespan="1900-2015", fillPal=fillPalGood, p="pbox", ...){
   makeMEOWmap(params %>% filter(grouping==geoGroup) %>% filter(Period==Timespan) %>% filter(parameter=="mean_slope"),
-              fillColName="pbox", "group_name",
+              fillColName=p, "group_name",
               type=toupper(geoGroup),
               fillPal=fillPal, 
               guide=guide_legend(title="Probability of\nKelp Having Changed\nwith Sign"),
-              add.worldmap=T, limits=levels(params$pbox), ...) + 
+              add.worldmap=T, limits=levels(params[[p]]), ...) + 
     xlab("\nLongitude") + ylab("\nLatitude")
 }
 
 
 #?use cut
-params$pbox <- cut(params$pSign, breaks=c(-1.1, -0.95, -0.9, -0.8, -0.7,  0.7, 0.8, 0.9, 0.95, 1.1))
-params$pbox <- gsub("\\(", "\\[", params$pbox)
-params$pbox <- gsub("\\.1", "", params$pbox)
-params$pbox <- factor(params$pbox)
-#params$pbox <- factor(params$pbox, levels=levels(params$pbox)[c(5:1, 6:9)])
-params$pbox <- factor(params$pbox, levels=levels(params$pbox)[c(9:6, 1:5)])
+makePboxes <- function(breaks=c(-1.1, -0.95, -0.9, -0.8, -0.7,  0.7, 0.8, 0.9, 0.95, 1.1)){
+  pbox <- cut(params$pSign, breaks=breaks)
+  pbox <- gsub("\\(", "\\[", pbox)
+  pbox <- gsub("\\.1", "", pbox)
+  pbox <- factor(pbox)
+  #params$pbox <- factor(params$pbox, levels=levels(params$pbox)[c(5:1, 6:9)])
+  pbox <- factor(pbox, levels=levels(pbox)[c(9:6, 1:5)])
+  
+  pbox
+  
+}
+params$pbox <- makePboxes()
+params$pbox2 <- makePboxes(c(-1.1, -0.975, -0.95, -0.925, -0.9,  0.9, 0.925, 0.95, 0.975, 1.1))
 
 
 
 
 #maps of p values
 jpeg("../Figures/HLM_probability_maps/ecoregion_probability_map.jpg", height=768, width=1024, type = c("quartz"))
-makePSignMap() 
+makePSignMap(p="pbox2") 
 dev.off()
 
 
