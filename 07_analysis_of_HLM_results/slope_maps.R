@@ -4,8 +4,8 @@ library(meowR)
 library(dplyr)
 
 #read in the parameters
-params <- read.csv("../06_HLM_output/site_slopes.csv")
-#params <- read.csv("../06_HLM_output/site_slopes_3points.csv")
+#params <- read.csv("../06_HLM_output/site_slopes.csv")
+params <- read.csv("../06_HLM_output/site_slopes_3points.csv")
 params <- params %>% filter(parameter=="mean_slope")
 params$group_name <- as.character(params$group_name)
 params$group_name[which(params$group_name=="Gulf of Maine-Bay of Fundy")] <- "Gulf of Maine/Bay of Fundy"
@@ -23,24 +23,21 @@ params$bayesian_probability <- getProb(params$p)
 
 
 slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
-                     addP = TRUE, pathCol="black", pathSize=2){
+                     addP = TRUE, pathCol="black", pathSize=2, ...){
   
     pathColNow <- pathCol
     adf <- params %>% filter(grouping==geoGroup &
                              Period==Timespan) %>% 
       filter(parameter=="mean_slope")
 
-    adf$starMe <- ""
-    adf$starMe[which(adf$p < 1-ci)] <- "*" #yuck
-    
     if(addP) pathColNow<-NA
     
-    ret <- makeMEOWmap(adf ,
+    ret <- makeMEOWmap(adf,
                 fillColName="mean", 
                 type=toupper(geoGroup),
                 regionColName="group_name", 
                 guide=guide_colorbar(title="Estimated\nSlope"),
-                add.worldmap=T, pathCol=NA)+ 
+                add.worldmap=T, pathCol=NA, ...)+ 
           xlab("\nLongitude") + ylab("\nLatitude")
     
     if(addP){
@@ -50,8 +47,9 @@ slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
       
       ret <- ret+
         geom_path(data=retData, color="black", alpha=1, 
-                  size=2, mapping=aes(lty=bayesian_probability, 
-                                      x=long, y=lat, group=group))
+                  size=1.5, mapping=aes(lty=bayesian_probability, 
+                                      x=long, y=lat, group=group)) +
+        scale_linetype_discrete(guide=guide_legend(title="Bayesian Posterior\nProbability Cutoff"))
       
     }
     
