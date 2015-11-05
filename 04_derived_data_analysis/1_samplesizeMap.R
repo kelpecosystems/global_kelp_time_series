@@ -31,7 +31,7 @@ ecoregions <- rd %>% group_by(ECOREGION) %>%
 realms <- rd %>% group_by(REALM) %>%
   summarize(Sites = n())
 
-jpeg("../Figures/data_propertiesecoregion_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
+jpeg("../Figures/data_properties/ecoregion_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
 makeMEOWmap(ecoregions, type="ECOREGION", fillColName="Sites", 
             fillPal=rainbow(11, start=.7, end=.1), 
             trans="log10", 
@@ -40,7 +40,7 @@ makeMEOWmap(ecoregions, type="ECOREGION", fillColName="Sites",
             add.worldmap=T) + xlab("Longitude") + ylab("Latitude") 
 dev.off()
 
-jpeg("../Figures/data_propertiesprovince_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
+jpeg("../Figures/data_properties/province_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
 
 makeMEOWmap(provinces, type="PROVINCE", fillColName="Sites", 
             fillPal=rainbow(11, start=.7, end=.1), 
@@ -51,7 +51,7 @@ makeMEOWmap(provinces, type="PROVINCE", fillColName="Sites",
 dev.off()
 
 
-jpeg("../Figures/data_propertiesrealm_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
+jpeg("../Figures/data_properties/realm_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
 
 makeMEOWmap(realms, type="REALM", fillColName="Sites", 
             fillPal=rainbow(11, start=.7, end=.1), 
@@ -64,7 +64,7 @@ dev.off()
 # Incorporate Study Duration into Maps & other Plots
 #############
 
-jpeg("../Figures/data_propertiesecoregion_average_duration.jpg", height=768, width=1024, type = c("quartz"))
+jpeg("../Figures/data_properties/ecoregion_average_duration.jpg", height=768, width=1024, type = c("quartz"))
 makeMEOWmap(ecoregions, type="ECOREGION", fillColName="Average Duration", 
             fillPal=rainbow(11, start=.7, end=.1), 
             prevggplot=ggplot()+ 
@@ -75,7 +75,7 @@ dev.off()
 rd$ECOREGION <- factor(rd$ECOREGION, levels=sort(levels(rd$ECOREGION), decreasing=T))
 rd$PROVINCE <- factor(rd$PROVINCE, levels=sort(levels(rd$PROVINCE), decreasing=T))
 
-jpeg("../Figures/data_propertiesecoregion_duration.jpg", height=768, width=1024, type = c("quartz"))
+jpeg("../Figures/data_properties/ecoregion_duration.jpg", height=768, width=1024, type = c("quartz"))
 ggplot(rd, aes(x=ECOREGION, y=timespan)) +
   geom_jitter(color="lightgrey") +
   theme_bw(base_size=24) +
@@ -84,7 +84,7 @@ ggplot(rd, aes(x=ECOREGION, y=timespan)) +
   ylab("Duration (years)") + xlab("")
 dev.off()
 
-jpeg("../Figures/data_propertiesprovince_duration.jpg", height=768, width=1024, type = c("quartz"))
+jpeg("../Figures/data_properties/province_duration.jpg", height=768, width=1024, type = c("quartz"))
 ggplot(rd, aes(x=PROVINCE, y=timespan)) +
   geom_jitter(color="lightgrey") +
   theme_bw(base_size=24) +
