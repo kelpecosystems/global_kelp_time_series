@@ -5,13 +5,27 @@ library(dplyr)
 
 #read in the parameters
 params <- read.csv("../06_HLM_output/site_slopes.csv")
+#params <- read.csv("../06_HLM_output/site_slopes_3points.csv")
 params <- params %>% filter(parameter=="mean_slope")
 params$group_name <- as.character(params$group_name)
 params$group_name[which(params$group_name=="Gulf of Maine-Bay of Fundy")] <- "Gulf of Maine/Bay of Fundy"
 
+getProb <- function(p, levs=c(0.05, 0.1)){
+  levs <- sort(levs)
+  levs <- c(-1, levs)
+  probs <- cut(p, levs)
+  probs <- gsub("\\(.*,", "", probs)
+  probs <- gsub("\\]", "", probs)
+  probs
+}
+
+params$bayesian_probability <- getProb(params$p)
+
 
 slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
-                     addStar=F, ci=0.9){
+                     addP = TRUE, pathCol="black", pathSize=2){
+  
+    pathColNow <- pathCol
     adf <- params %>% filter(grouping==geoGroup &
                              Period==Timespan) %>% 
       filter(parameter=="mean_slope")
@@ -19,24 +33,28 @@ slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
     adf$starMe <- ""
     adf$starMe[which(adf$p < 1-ci)] <- "*" #yuck
     
+    if(addP) pathColNow<-NA
+    
     ret <- makeMEOWmap(adf ,
                 fillColName="mean", 
                 type=toupper(geoGroup),
                 regionColName="group_name", 
                 guide=guide_colorbar(title="Estimated\nSlope"),
-                add.worldmap=T)+ 
+                add.worldmap=T, pathCol=NA)+ 
           xlab("\nLongitude") + ylab("\nLatitude")
     
-    if(addStar){
-    centroids <- data.frame(getSpPPolygonsLabptSlots(regions))
-    #centroids <- data.frame(gCentroid(regions))
-    names(centroids) = c("x", "y")
-    centroids$group_name <- regions[[toupper(geoGroup)]]
-    centroids <- join(centroids, adf)
-    ret <- ret +
-      geom_text(data=centroids, mapping=aes(x=x, y=y, label=starMe), 
-                size=15, vjust=0.7)
-  }
+    if(addP){
+      retData <- makeMEOWmapData(adf, fillColName="mean",
+                                 type=toupper(geoGroup),
+                                 regionColName="group_name")
+      
+      ret <- ret+
+        geom_path(data=retData, color="black", alpha=1, 
+                  size=2, mapping=aes(lty=bayesian_probability, 
+                                      x=long, y=lat, group=group))
+      
+    }
+    
   ret
 }
 
