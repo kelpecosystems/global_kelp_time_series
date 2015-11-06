@@ -23,7 +23,7 @@ params$bayesian_probability <- getProb(params$p)
 
 
 slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
-                     addP = TRUE, pathCol="black", pathSize=2, ...){
+                     addP = TRUE, pathCol="black", pathSize=2, limits=c(-0.3, 0.3), ...){
   
     pathColNow <- pathCol
     adf <- params %>% filter(grouping==geoGroup &
@@ -37,7 +37,7 @@ slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
                 type=toupper(geoGroup),
                 regionColName="group_name", 
                 guide=guide_colorbar(title="Estimated\nSlope"),
-                add.worldmap=T, pathCol=NA, ...)+ 
+                add.worldmap=T, pathCol=NA, limits=limits, ...)+ 
           xlab("\nLongitude") + ylab("\nLatitude")
     
     if(addP){
