@@ -1,6 +1,6 @@
 setwd("~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/06_hlm_output")
 
-load("combined_model_summaries.RData")
+load("../06_hlm_output/combined_model_summaries.RData")
 load("~/Dropbox/nceas_kelp_data/temporal_change_big/HLME_Output/model_summaries1900-2015_2015-11-02.RData")
 
 library(rstan);library(plyr);library(gdata);library(ggplot2)
@@ -51,5 +51,5 @@ for (j in 1:4){
       }
     dev.off()
 }
-write.csv(combined_summaries,"site_slopes.csv",row.names= F)
+write.csv(combined_summaries,"../06_HLM_output/site_slopes.csv",row.names= F)
 
