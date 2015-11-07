@@ -2,6 +2,7 @@ library(rgeos)
 #devtools::install_github("meowR", "jebyrnes")
 library(meowR)
 library(dplyr)
+library(colorspace)
 
 #read in the parameters
 #params <- read.csv("../06_HLM_output/site_slopes.csv")
@@ -19,11 +20,13 @@ getProb <- function(p, levs=c(0.05, 0.1)){
   probs
 }
 
-params$bayesian_probability <- getProb(params$p)
-
+params$bayesian_probability <- getProb(1-ifelse(params$p-0.5 < 0, 1-params$p, params$p))
+params$bayesian_probability <- gsub("0.05", "95%", params$bayesian_probability)
+params$bayesian_probability <- gsub("0.1", "90%", params$bayesian_probability)
 
 slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
-                     addP = TRUE, pathCol="black", pathSize=2, limits=c(-0.3, 0.3), ...){
+                     addP = TRUE, pathCol="black", pathSize=2, limits=c(-0.3, 0.3), 
+                     fillPal=diverge_hsv(3), ...){
   
     pathColNow <- pathCol
     adf <- params %>% filter(grouping==geoGroup &
@@ -32,7 +35,7 @@ slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
 
     if(addP) pathColNow<-NA
     
-    ret <- makeMEOWmap(adf,
+    ret <- makeMEOWmap(adf, fillPal=fillPal,
                 fillColName="mean", 
                 type=toupper(geoGroup),
                 regionColName="group_name", 
@@ -44,12 +47,15 @@ slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
       retData <- makeMEOWmapData(adf, fillColName="mean",
                                  type=toupper(geoGroup),
                                  regionColName="group_name")
+      retData$alpha <- !is.na(retData$bayesian_probability)
       
       ret <- ret+
-        geom_path(data=retData, color="black", alpha=1, 
-                  size=1.5, mapping=aes(lty=bayesian_probability, 
-                                      x=long, y=lat, group=group)) +
-        scale_linetype_discrete(guide=guide_legend(title="Bayesian Posterior\nProbability Cutoff"))
+        geom_path(data=retData, 
+                  size=1.2, mapping=aes(colour=bayesian_probability, 
+                                      x=long, y=lat, group=group, alpha=alpha)) +
+       scale_colour_manual(guide=guide_legend(title="Bayesian Probability\nCutoff"),
+                           values=c("darkgrey", "black")) +
+        scale_alpha_discrete(guide="none")
       
     }
     
