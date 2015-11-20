@@ -21,15 +21,15 @@ rd <- rawDataMod2 %>%
   summarise(n = length(Longitude), timespan = range(year)[2] - range(year)[1])
 
 provinces <- rd %>% group_by(PROVINCE) %>%
-  summarize(Sites = n())
+  summarise(Sites = n())
 
 
 ecoregions <- rd %>% group_by(ECOREGION) %>%
-  summarize(Sites = n(), `Average Duration` = mean(timespan))
+  summarise(Sites = n(), `Average Duration` = mean(timespan))
 
 
 realms <- rd %>% group_by(REALM) %>%
-  summarize(Sites = n())
+  summarise(Sites = n())
 
 jpeg("../Figures/data_properties/ecoregion_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
 makeMEOWmap(ecoregions, type="ECOREGION", fillColName="Sites", 

@@ -35,7 +35,7 @@ rawData$ECOREGION <- factor(rawData$ECOREGION)
 ###########
 #deal with sites that only have one or sample point and exclude them
 ###########
-singletons <- ddply(rawData, .(study_ID, Study, Site, focalUnit), summarize, len = length(focalKelp))
+singletons <- ddply(rawData, .(study_ID, Study, Site, focalUnit), summarise, len = length(focalKelp))
 singletons <- singletons[which(singletons$len==1),]
 
 singletonIDX <- apply(singletons, 1, function(arow) which(rawData$Study==arow[2] & rawData$Site==arow[3] & rawData$focalUnit==arow[4]))
@@ -44,7 +44,7 @@ if(length(singletonIDX)>0) rawDataMod <- rawData[-singletonIDX,]
 ###########
 #deal with sites that only have no kelp
 ###########
-nokelp <- ddply(rawDataMod, .(study_ID, Study, Site), summarize, kelp = sum(focalKelp, na.rm=T))
+nokelp <- ddply(rawDataMod, .(study_ID, Study, Site), summarise, kelp = sum(focalKelp, na.rm=T))
 nokelp <- nokelp[which(nokelp$kelp==0),]
 
 nokelpIDX <- getValues(apply(nokelp, 1, function(arow) which(rawDataMod$Study==arow[2] & rawDataMod$Site==arow[3]))) #used getvalues b/c list return
@@ -126,7 +126,7 @@ rawDataMod <- ddply(rawDataMod, .(REALM), function(adf){
 ###########
 shortData <- function(studyPoints=2, d = rawDataMod){
   
-  smalls <- ddply(d, .(study_ID, Study, Site, trajectory_ID, focalUnit), summarize, len = length(focalKelp))
+  smalls <- ddply(d, .(study_ID, Study, Site, trajectory_ID, focalUnit), summarise, len = length(focalKelp))
   smalls <- smalls[which(smalls$len<=studyPoints),]
   
   smallsIDX <- apply(smalls, 1, function(arow) which(d$Study==arow[2] & d$Site==arow[3] & d$focalUnit==arow[5]))
@@ -164,8 +164,8 @@ shortData2 <- function(studyPoints=3, studyYears=3, d = rawDataMod){
 rawDataMod2 <- shortData()
 rawDataMod_3points_3years <- shortData2()
 
-length(unique(rawDataMod2$trajectory_ID))
-length(unique(rawDataMod_3points_3years$trajectory_ID))
+#length(unique(rawDataMod2$trajectory_ID))
+#length(unique(rawDataMod_3points_3years$trajectory_ID))
 
 
 ###########
