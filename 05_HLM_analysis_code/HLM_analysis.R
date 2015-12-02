@@ -91,12 +91,12 @@ for (i in 1:ncol(year_bounds)){
   }
  
   ### save individual model output
-   save(model_list, all_summaries,file= paste0("model_summaries",
+   save(model_list, all_summaries,file= paste0("../model_summaries",
                                paste(year_bounds[,i],collapse= "-"),
                                "_",Sys.Date(),".RData"))
 }
 #combined_WAIC,
-save(combined_summaries,file= paste0("combined_model_summaries",
+save(combined_summaries,file= paste0("06_HLM_outputcombined_model_summaries",
                                             paste(year_bounds[,i],collapse= "-"),
                                             "_",Sys.Date(),".RData"))
-write.csv(combined_summaries,"site_slopes.csv",row.names= F)
+write.csv(combined_summaries,"06_HLM_output/site_slopes.csv",row.names= F)
