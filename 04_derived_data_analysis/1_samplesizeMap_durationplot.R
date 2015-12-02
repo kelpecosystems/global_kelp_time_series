@@ -18,18 +18,20 @@ kelpy.df <- subset(regions.df, regions.df$hasKelp==1)
 #rawDataMod2
 rd <- rawDataMod2 %>% 
   group_by(StudySite, Study, Latitude, Longitude, REALM, PROVINCE, ECOREGION) %>%
-  summarise(n = length(Longitude), timespan = range(year)[2] - range(year)[1])
+  summarise(n = length(Longitude), timespan = range(year)[2] - range(year)[1],
+            `First Year` = min(year), `Last Year` = max(year))
 
 provinces <- rd %>% group_by(PROVINCE) %>%
-  summarise(Sites = n())
+  summarise(Sites = length(PROVINCE))
 
 
 ecoregions <- rd %>% group_by(ECOREGION) %>%
-  summarise(Sites = n(), `Average Duration` = mean(timespan))
+  summarise(Sites = length(ECOREGION), `Average Duration` = mean(timespan),
+            `First Year` = min(`First Year`), `Last Year` = max(`Last Year`))
 
 
 realms <- rd %>% group_by(REALM) %>%
-  summarise(Sites = n())
+  summarise(Sites = length(REALM))
 
 jpeg("../Figures/data_properties/ecoregion_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
 makeMEOWmap(ecoregions, type="ECOREGION", fillColName="Sites", 
@@ -75,12 +77,17 @@ dev.off()
 rd$ECOREGION <- factor(rd$ECOREGION, levels=sort(levels(rd$ECOREGION), decreasing=T))
 rd$PROVINCE <- factor(rd$PROVINCE, levels=sort(levels(rd$PROVINCE), decreasing=T))
 
-jpeg("../Figures/data_properties/ecoregion_duration.jpg", height=768, width=1024, type = c("quartz"))
+pdf("../Figures/data_properties/ecoregion_duration.pdf", height=15, width=20)
 ggplot(rd, aes(x=ECOREGION, y=timespan)) +
   geom_jitter(color="lightgrey") +
-  theme_bw(base_size=24) +
+  theme_bw() +
+  theme(panel.grid.minor = element_line(colour = NA),
+        panel.grid.major = element_line(colour = NA),
+        axis.title.x=element_text(size=24),
+        axis.title.y=element_text(size=24),
+        axis.text=element_text(size=24))+
   coord_flip() +
-  stat_summary(fun.data = "mean_cl_boot", color="red", size=1.5) +
+  stat_summary(fun.data = "mean_cl_boot", color="black", size=2) +
   ylab("Duration (years)") + xlab("")
 dev.off()
 
