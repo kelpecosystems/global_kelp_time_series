@@ -145,7 +145,7 @@ shortData2 <- function(studyPoints=3, studyYears=3, d = rawDataMod){
   d %>% group_by(study_ID, Study, Site, trajectory_ID, focalUnit) %>%
     
     # what is the study length and number of data points  
-    mutate(len=n(), num_years = max(year) - min(year)) %>%
+    mutate(len=length(study_ID), num_years = max(year) - min(year)) %>%
     ungroup() %>%
     #boot studies without studyPoints or more data points
     filter(len >= studyPoints) %>%
