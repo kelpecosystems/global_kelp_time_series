@@ -1,6 +1,6 @@
 library(plyr)
-setwd("~/Dropbox/nceas_kelp_climate_2013/temporal_change/R/analysis_scripts")
-source("./temporal_kelp_prep.R")
+#setwd("~/Dropbox/nceas_kelp_climate_2013/temporal_change/R/analysis_scripts")
+source("../04_derived_data_analysis/0_temporal_kelp_prep.R")
 
 format_data <- function(x) {
     DATA <- x
