@@ -1,6 +1,5 @@
 library(plyr)
 source("./getRegions.R")
-
 # they take a while, as the raw data file is large...must be a better way
 
 rawData <- read.csv("../03_derived_data/CleanData.csv")
