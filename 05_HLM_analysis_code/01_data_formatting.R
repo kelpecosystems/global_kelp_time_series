@@ -58,7 +58,7 @@ format_data <- function(x) {
 
 DATA3_YEARS <- format_data(rawDataMod_3points_3years)
 DATA3_POINTS <- format_data(rawDataMod2)
-setwd("./Hierarchical_LME")
+#setwd("./Hierarchical_LME")
 write.csv(DATA3_YEARS,"formatted_data_3years.csv",row.names= F)
 write.csv(DATA3_POINTS,"formatted_data_3points.csv",row.names= F)
 

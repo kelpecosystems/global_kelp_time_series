@@ -9,12 +9,12 @@ library(parallel);library(grid);library(coda)
 
 cat("Stan version:", stan_version(), "\n")
 rstan_options(auto_write = TRUE)
-options(mc.cores = 1)
+options(mc.cores = 4)
 
 ### clear old data ###
 rm(list=ls())
 
-source("data_formatting.R")
+#source("01_data_formatting.R")
 kelpdata <- read.csv("formatted_data_3years.csv")
 #kelpdata <- read.csv("formatted_data_3points.csv")
 
@@ -91,12 +91,12 @@ for (i in 1:ncol(year_bounds)){
   }
  
   ### save individual model output
-   save(model_list, all_summaries,file= paste0("../model_summaries",
+   save(model_list, all_summaries,file= paste0("../06_HLM_output",
                                paste(year_bounds[,i],collapse= "-"),
                                "_",Sys.Date(),".RData"))
 }
 #combined_WAIC,
-save(combined_summaries,file= paste0("06_HLM_outputcombined_model_summaries",
+save(combined_summaries,file= paste0("../06_HLM_output/combined_model_summaries",
                                             paste(year_bounds[,i],collapse= "-"),
                                             "_",Sys.Date(),".RData"))
-write.csv(combined_summaries,"06_HLM_output/site_slopes.csv",row.names= F)
+write.csv(combined_summaries,"../06_HLM_output/site_slopes.csv",row.names= F)
