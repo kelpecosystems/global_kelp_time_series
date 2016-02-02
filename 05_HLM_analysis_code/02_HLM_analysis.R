@@ -108,17 +108,19 @@ save(combined_summaries,file= paste0("../06_HLM_output/combined_model_summaries"
 
 write.csv(combined_summaries,"../06_HLM_output/site_slopes_3_points.csv",row.names= F)
 
+
+### upload huge file to dropbox ###
 for (i in 1:ncol(year_bounds)){
 drop_upload(file= paste0("../",
                      paste(year_bounds[,i],collapse= "-"),
                      "_3_points",
-                     "_","Sys.Date()",".RData"),
+                     "_",Sys.Date(),".RData"),
             dest = "nceas_kelp_data/temporal_change_big/HLME_Output",
             dtoken= token)
   
 drop_upload(file= paste0("../",
                            paste(year_bounds[,i],collapse= "-"),
-                           "_","Sys.Date()",".RData"),
+                           "_",Sys.Date(),".RData"),
             dest = "nceas_kelp_data/temporal_change_big/HLME_Output",
             dtoken= token)  
 }
