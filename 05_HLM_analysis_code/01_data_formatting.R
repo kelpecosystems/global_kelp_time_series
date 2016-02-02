@@ -1,4 +1,5 @@
-library(plyr)
+library(plyr);library(plyr)
+setwd("03_derived_data")
 #setwd("~/Dropbox/nceas_kelp_climate_2013/temporal_change/R/analysis_scripts")
 source("../04_derived_data_analysis/0_temporal_kelp_prep.R")
 
@@ -59,7 +60,7 @@ format_data <- function(x) {
 DATA3_YEARS <- format_data(rawDataMod_3points_3years)
 DATA3_POINTS <- format_data(rawDataMod2)
 #setwd("./Hierarchical_LME")
-write.csv(DATA3_YEARS,"formatted_data_3years.csv",row.names= F)
-write.csv(DATA3_POINTS,"formatted_data_3points.csv",row.names= F)
+write.csv(DATA3_YEARS,"../05_HLM_analysis_code/formatted_data_3years.csv",row.names= F)
+write.csv(DATA3_POINTS,"../05_HLM_analysis_code/formatted_data_3points.csv",row.names= F)
 
 

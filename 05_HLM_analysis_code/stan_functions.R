@@ -144,7 +144,7 @@ HLM_stan_fit <- function(data=model_data,
 
   fit <- with(MCMC_details,stan(model_code= HLM_model,data= data_for_stan,pars= params,
                                 iter= n.iter,thin= n.thin,warmup= n.burnin,chains=n.chains,
-                                init= "random",seed= 123))
+                                init= "random",seed= 123,cores= 1))
   
   chainmat <-  with(MCMC_details,matrix(1:((n.iter-n.burnin)/n.thin*n.chains),ncol= n.chains))
   

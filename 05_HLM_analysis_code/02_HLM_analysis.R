@@ -5,18 +5,23 @@
 ######################################################
 
 library(rstan);library(plyr);library(gdata);library(ggplot2)
-library(parallel);library(grid);library(coda)
+library(parallel);library(grid);library(coda);library(rdrop2)
 
 cat("Stan version:", stan_version(), "\n")
 rstan_options(auto_write = TRUE)
-options(mc.cores = 4)
+
+### read in dropbox token to be able to write to dropbox
+token <- readRDS("droptoken.rds")
+drop_acc(dtoken = token)
 
 ### clear old data ###
 rm(list=ls())
+setwd("../")
+source("05_HLM_analysis_code/01_data_formatting.R")
+setwd("../05_HLM_analysis_code/")
 
-#source("01_data_formatting.R")
-kelpdata <- read.csv("formatted_data_3years.csv")
-#kelpdata <- read.csv("formatted_data_3points.csv")
+#kelpdata <- read.csv("formatted_data_3years.csv")
+kelpdata <- read.csv("formatted_data_3points.csv")
 
 ### min number of years and observations in each analysis ###
 min_years =2
@@ -60,7 +65,7 @@ year_bounds <- array(c(1900,2015,1983,1992,1993,2002,2003,2012),dim= c(2,4))
   ### order data
   model_data <- model_data[order(model_data$Site),]
   grouping_list <- c("Ecoregion","Province","Realm","World")
-
+  
 for (i in 1:ncol(year_bounds)){
   ### make sure each group has the minimum number of sites
   data_subset <- years_subset(model_data,min_obs,x_min=year_bounds[1,i], x_max=year_bounds[2,i])
@@ -73,8 +78,7 @@ for (i in 1:ncol(year_bounds)){
     HLM_stan_fit(group=x, data= data_subset,params= params_for_stan, MCMC_details= MCMC_details)
   }  
   
-  ### apply the function to each grouping
-  model_list <- mclapply(grouping_list,fit.fun,mc.cores=4)
+  model_list <- mclapply(grouping_list,fit.fun,mc.cores= 4)
   
   ### combine the summary data for each model 
   all_summaries <- rbind.fill(lapply(model_list,function(x) x$summary))
@@ -91,12 +95,30 @@ for (i in 1:ncol(year_bounds)){
   }
  
   ### save individual model output
-   save(model_list, all_summaries,file= paste0("../06_HLM_output",
+   save(model_list, all_summaries,file= paste0("../06_HLM_output/",
                                paste(year_bounds[,i],collapse= "-"),
+                               "_3_points",
                                "_",Sys.Date(),".RData"))
 }
-#combined_WAIC,
+
 save(combined_summaries,file= paste0("../06_HLM_output/combined_model_summaries",
                                             paste(year_bounds[,i],collapse= "-"),
-                                            "_",Sys.Date(),".RData"))
-write.csv(combined_summaries,"../06_HLM_output/site_slopes.csv",row.names= F)
+                                  "_3_points",
+                                  "_",Sys.Date(),".RData"))
+
+write.csv(combined_summaries,"../06_HLM_output/site_slopes_3_points.csv",row.names= F)
+
+for (i in 1:ncol(year_bounds)){
+drop_upload(file= paste0("../",
+                     paste(year_bounds[,i],collapse= "-"),
+                     "_3_points",
+                     "_","Sys.Date()",".RData"),
+            dest = "nceas_kelp_data/temporal_change_big/HLME_Output",
+            dtoken= token)
+  
+drop_upload(file= paste0("../",
+                           paste(year_bounds[,i],collapse= "-"),
+                           "_","Sys.Date()",".RData"),
+            dest = "nceas_kelp_data/temporal_change_big/HLME_Output",
+            dtoken= token)  
+}
