@@ -6,7 +6,7 @@ library(colorspace)
 
 #read in the parameters
 #params <- read.csv("../06_HLM_output/site_slopes.csv")
-params <- read.csv("../06_HLM_output/site_slopes_3_points.csv")
+params <- read.csv("../06_HLM_output/site_slopes_3points.csv")
 params <- params %>% filter(parameter=="mean_slope")
 params$group_name <- as.character(params$group_name)
 params$group_name[which(params$group_name=="Gulf of Maine-Bay of Fundy")] <- "Gulf of Maine/Bay of Fundy"

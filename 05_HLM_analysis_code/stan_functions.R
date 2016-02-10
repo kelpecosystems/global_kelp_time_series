@@ -119,7 +119,8 @@ min_sites_subset <- function(x,group_name,min_sites){
 #### function to fit the model and produce output ###
 HLM_stan_fit <- function(data=model_data,
                          group,min_num_sites=3,model=HLM_model, 
-                         params = pars,MCMC_details,quantiles= c(0.99,0.95,0.9)){
+                         params = pars,MCMC_details,quantiles= c(0.99,0.95,0.9),
+                         model=HLM_model){
   ### rename groupings for convenience in Stan
   data$SiteName <- factor(factor(data$SiteName):factor(data$StudyName))
   data$group_name <- data[,paste(group,"Name",sep= "")]
@@ -142,7 +143,7 @@ HLM_stan_fit <- function(data=model_data,
                                          y=y,
                                          N=nrow(data)))
 
-  fit <- with(MCMC_details,stan(model_code= HLM_model,data= data_for_stan,pars= params,
+  fit <- with(MCMC_details,stan(model_code= model,data= data_for_stan,pars= params,
                                 iter= n.iter,thin= n.thin,warmup= n.burnin,chains=n.chains,
                                 init= "random",seed= 123,cores= 1))
   
