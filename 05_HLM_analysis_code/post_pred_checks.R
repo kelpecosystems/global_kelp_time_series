@@ -15,11 +15,11 @@ load("~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/06_HLM_outpu
 
   study <- model_list[[1]]$data_pred$StudyName
   data <- model_list[[1]]$data_pred
-  data_res <- cbind(data,resid)
+  data_res <- cbind(data,t(model_list[[1]]$chains$resid))
   data_res<- melt(data_res,id.vars= names(data))
   names(data_res) <- c(names(data),"iteration","resid")
  
-  samples <- sample(1:length(unique(res2$iteration)),300)
+  samples <- sample(1:length(unique(data_res$iteration)),300)
   res3 <-subset(data_res,iteration%in%samples)
   res3$Study <- res3$StudyName
   res_mean <- ddply(res3,.(Study,iteration),summarize,mean= mean(resid))
@@ -39,7 +39,7 @@ load("~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/06_HLM_outpu
   
   
   
-  measure_unit <- ddply(model_list[[x]]$data_pred,.(StudyName),summarize,Unit= paste(unique(Unit),collapse= ";"),N= length(y))
+  measure_unit <- ddply(model_list[[1]]$data_pred,.(StudyName),summarize,Unit= paste(unique(Unit),collapse= ";"),N= length(y))
   
   names(measure_unit)[1] <- "Study"
   test2 <- join(test2,measure_unit)
@@ -59,7 +59,7 @@ load("~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/06_HLM_outpu
                    panel.border= element_rect(fill= NA),
                    plot.margin = unit(rep(0.1, 4), "inches"))
   
-  pdf(width= 8, height= 8,file= "../Figures/post_pred_checks.pdf")
+  pdf(width= 8, height= 8,file= "/Users/Dan/post_pred_checks.pdf")
     for(i in 1:length(unique(study))){
       max <-max(subset(test1,Study==unique(study)[i])[,c("stat","stat.null")])*1.1
       labels <- subset(test2,Study==unique(study)[i])

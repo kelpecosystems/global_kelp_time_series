@@ -6,6 +6,7 @@
 #
 # Changelog
 # 11/3/15 - Re-ordered ecoregions for cleaner plot
+# 2/2/15 - Kira added code to edit ecoregion names as per co-authors comments
 ####################################################
 library(meowR)
 library(dplyr)
@@ -66,6 +67,7 @@ dev.off()
 # Incorporate Study Duration into Maps & other Plots
 #############
 
+
 jpeg("../Figures/data_properties/ecoregion_average_duration.jpg", height=768, width=1024, type = c("quartz"))
 makeMEOWmap(ecoregions, type="ECOREGION", fillColName="Average Duration", 
             fillPal=rainbow(11, start=.7, end=.1), 
@@ -73,6 +75,18 @@ makeMEOWmap(ecoregions, type="ECOREGION", fillColName="Average Duration",
               geom_polygon(data=kelpy.df, aes(x=long, y=lat, group=ECOREGION), fill="lightgrey"),
             add.worldmap=T) + xlab("Longitude") + ylab("Latitude") 
 dev.off()
+
+
+levels(rd$ECOREGION) <- c(levels(rd$ECOREGION), "Beaufort Sea")
+rd$ECOREGION[rd$ECOREGION=="Beaufort Sea - continental coast and shelf"]<-"Beaufort Sea"
+levels(rd$ECOREGION) <- c(levels(rd$ECOREGION), "Gulf of Maine")
+rd$ECOREGION[rd$ECOREGION == "Gulf of Maine/Bay of Fundy"]<-"Gulf of Maine"
+levels(rd$ECOREGION) <- c(levels(data$group_name), "Oregon, Washington, Vancouver Island")
+rd$ECOREGION[rd$ECOREGION=="Oregon, Washington, Vancouver Coast and Shelf"]<-"Oregon, Washington, Vancouver Island"
+levels(rd$ECOREGION) <- c(levels(data$group_name), "Northern and Central California")
+rd$ECOREGION[rd$ECOREGION=="Northern California"]<-"Northern and Central California"
+levels(rd$ECOREGION) <- c(levels(rd$ECOREGION), "Gulf of St. Lawrence")
+rd$ECOREGION[rd$ECOREGION=="Gulf of St. Lawrence - Eastern Scotian Shelf"]<-"Gulf of St. Lawrence"
 
 rd$ECOREGION <- factor(rd$ECOREGION, levels=sort(levels(rd$ECOREGION), decreasing=T))
 rd$PROVINCE <- factor(rd$PROVINCE, levels=sort(levels(rd$PROVINCE), decreasing=T))
@@ -83,12 +97,12 @@ ggplot(rd, aes(x=ECOREGION, y=timespan)) +
   theme_bw() +
   theme(panel.grid.minor = element_line(colour = NA),
         panel.grid.major = element_line(colour = NA),
-        axis.title.x=element_text(size=24),
-        axis.title.y=element_text(size=24),
-        axis.text=element_text(size=24))+
+        axis.title.x=element_text(size=32, face="bold"),
+        axis.title.y=element_text(size=32, face="bold"),
+        axis.text=element_text(size=28))+
   coord_flip() +
   stat_summary(fun.data = "mean_cl_boot", color="black", size=2) +
-  ylab("Duration (years)") + xlab("")
+  ylab("Duration (years)") + xlab("Ecoregion")
 dev.off()
 
 jpeg("../Figures/data_properties/province_duration.jpg", height=768, width=1024, type = c("quartz"))
