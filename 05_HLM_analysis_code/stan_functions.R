@@ -1,7 +1,7 @@
 ### functions to get median, mean and other quantiles from the posterior ###
 
 HPD.mean.fun <- function(chains,probs,source_name,names,chain_ID) {
-
+  
   HPD <- data.frame(do.call(cbind,lapply(probs,
                                          function(x) HPDinterval(mcmc(chains),prob= x))))
   #cbind(mean=mean(x),se = sd(x),HPD)
@@ -118,8 +118,9 @@ min_sites_subset <- function(x,group_name,min_sites){
 
 #### function to fit the model and produce output ###
 HLM_stan_fit <- function(data=model_data,
-                         group,min_num_sites=3,model=HLM_model, 
-                         params = pars,MCMC_details,quantiles= c(0.99,0.95,0.9)){
+                         group,min_num_sites=3, 
+                         params = pars,MCMC_details,quantiles= c(0.99,0.95,0.9),
+                         model=HLM_model){
   ### rename groupings for convenience in Stan
   data$SiteName <- factor(factor(data$SiteName):factor(data$StudyName))
   data$group_name <- data[,paste(group,"Name",sep= "")]
@@ -131,20 +132,33 @@ HLM_stan_fit <- function(data=model_data,
   GroupSite <- ddply(data,c("site_num","study_num","group_num","group_name","StudyName","SiteName"),
                      summarise,group_num_site =unique(group_num))
   
+  unique_study <- ddply(data,c("group_num"),summarise,N_studies = length(unique(study_num)))
+  unique_site <- ddply(data,c("study_num"),summarise,N_sites = length(unique(site_num)))
+  data <- join(data,unique_study)
+  data <- join(data,unique_site)
+  
   ### fetch the data to be used in the model 
-  data_for_stan <- with(data,list(NG= length(unique(group_num)),
-                                         NSI= length(unique(SiteName)),
-                                         NST= length(unique(StudyName)),
-                                         Group=group_num,
-                                         Site= site_num,
-                                         Study= study_num,
-                                         x=Year-mean(Year),
-                                         y=y,
-                                         N=nrow(data)))
-
-  fit <- with(MCMC_details,stan(model_code= HLM_model,data= data_for_stan,pars= params,
-                                iter= n.iter,thin= n.thin,warmup= n.burnin,chains=n.chains,
-                                init= "random",seed= 123,cores= 1))
+  data_for_stan <- with(data,
+    list(NG= length(unique(group_num)),
+      NSI= length(unique(SiteName)),
+      NST= nrow(unique(data[,c("SiteMethod","study_num")])),
+      NM= length(unique(SiteMethod)),
+      Group=group_num,
+      Site= site_num,
+      Study= study_num,
+      x=Year-mean(Year),
+      GroupSite = unique(data[,c("group_num","site_num")])[,1],
+      y=y,
+      N=nrow(data),
+      SiteMethod= unique(data[,c("SiteMethod","study_num")])[,1])
+    )
+  
+  fit <- with(MCMC_details,stan(model_code= model,data= data_for_stan,
+                                pars= params,
+                                iter= n.iter,thin= n.thin,warmup= n.burnin,
+                                chains=n.chains,
+                                init= "random",seed= 123,cores=1,
+                                control= list(adapt_delta = 0.9,max_treedepth= 15)))
   
   chainmat <-  with(MCMC_details,matrix(1:((n.iter-n.burnin)/n.thin*n.chains),ncol= n.chains))
   
@@ -159,7 +173,6 @@ HLM_stan_fit <- function(data=model_data,
   
   ### name the average slope ###
   mu_slope$parameter <- "mean_slope"
-
   
   mu_intercept <- HPD.mean.fun(fit.params$beta_mu[,,1],probs= quantiles, chain_ID=chain_ID,
                                source_name= "group_num_site",
@@ -168,11 +181,11 @@ HLM_stan_fit <- function(data=model_data,
   mu_intercept$parameter <- "mean_intercept"
   
   mean_summary <- rbind(mu_slope,mu_intercept)
- 
-  groupings <- unique(data[,c("SiteName","group_name","group_num","site_num")])
+  
+  groupings <- unique(data[,c("SiteName","group_name","group_num","site_num","study_num")])
   
   beta_mu_rep <-fit.params$beta_mu[,groupings$group_num,]
-  
+
   betas <- fit.params$beta+beta_mu_rep
   
   site_slope <- HPD.mean.fun(betas[,,2],probs= quantiles, chain_ID=chain_ID,
@@ -189,12 +202,12 @@ HLM_stan_fit <- function(data=model_data,
   
   data$y_hat <- colMeans(exp(fit.params$y_loc))
   data[,c("y_hat_L95","y_hat_U95")] <- data.frame(t(apply(exp(fit.params$y_loc),2,
-                                                                   function(x) HPDinterval(as.mcmc(x)))))
+                                                          function(x) HPDinterval(as.mcmc(x)))))
   
   data$y_hat_mu <- colMeans(exp(fit.params$y_loc_mu))
   data[,c("y_hat_mu_L95","y_hat_mu_U95")] <- data.frame(t(apply(exp(fit.params$y_loc_mu),2,
-                                                                         function(x) HPDinterval(as.mcmc(x)))))
-
+                                                                function(x) HPDinterval(as.mcmc(x)))))
+  
   site_summary <- rbind(site_slope,site_intercept)
   output_summary <- rbind.fill(site_summary,mean_summary)
   output_summary <- subset(output_summary, select=-c(site_num,group_num_site))
@@ -203,4 +216,3 @@ HLM_stan_fit <- function(data=model_data,
   waic_output <- waic(fit.params$log_lik)
   return(list(summary= output_summary,chains = fit.params,waic = waic_output,data_pred= data))
 }  
-
