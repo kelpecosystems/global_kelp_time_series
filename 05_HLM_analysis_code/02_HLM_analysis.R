@@ -12,7 +12,7 @@ rstan_options(auto_write = TRUE)
 
 ### clear old data ###
 rm(list=ls())
-#setwd()
+setwd("global_kelp_time_series")
 source("05_HLM_analysis_code/01_data_formatting.R")
 setwd("../05_HLM_analysis_code/")
 
@@ -49,26 +49,26 @@ for (j in 1:2){
   else{
     kelpdata <- read.csv("formatted_data_3years.csv")
   }
-
+  
   ### array of sampling year constraints (each column is a sampling period)
   year_bounds <- array(c(1900,2015,1983,1992,1993,2002,2003,2012),dim= c(2,4))
   
-    model_data <- with(kelpdata,data.frame(list(
-                                                ProvinceName = as.character(PROVINCE),
-                                                EcoregionName = as.character(ECOREGION),
-                                                RealmName = as.character(REALM),
-                                                WorldName = as.character("Whole World"),
-                                                StudyName=as.character(Study),
-                                                SiteName= as.character(StudySite),
-                                                SiteMethod= focalUnit,
-                                                y=stdByECOREGION+0.01,
-                                                Year= YearsSince1900+1900),
-                                           stringsAsFactors=FALSE))
-    
-    ### order data
-    model_data <- model_data[order(model_data$SiteName),]
-    grouping_list <- c("Ecoregion","Province","Realm","World")
-    
+  model_data <- with(kelpdata,data.frame(list(
+    ProvinceName = as.character(PROVINCE),
+    EcoregionName = as.character(ECOREGION),
+    RealmName = as.character(REALM),
+    WorldName = as.character("Whole World"),
+    StudyName=as.character(Study),
+    SiteName= as.character(StudySite),
+    SiteMethod= focalUnit,
+    y=stdByECOREGION+0.01,
+    Year= YearsSince1900+1900),
+    stringsAsFactors=FALSE))
+  
+  ### order data
+  model_data <- model_data[order(model_data$SiteName),]
+  grouping_list <- c("Ecoregion","Province","Realm","World")
+  
   for (i in 1:ncol(year_bounds)){
     
     ### make sure each group has the minimum number of sites
@@ -90,7 +90,7 @@ for (j in 1:2){
     
     ### provide year boundaries for the summaries
     all_summaries$Period <- paste(year_bounds[,i],collapse= "-")
-   
+    
     ### combine the output
     if(i==1){
       combined_summaries <- all_summaries
@@ -98,20 +98,20 @@ for (j in 1:2){
     else {
       combined_summaries <- rbind.fill(combined_summaries,all_summaries)
     }
-   
+    
     ### save individual model output
-  
+    
     if(j==1){
       save(model_list, all_summaries,file= paste0("../06_HLM_output/",
-        paste(year_bounds[,i],collapse= "-"),
-          "_3_points",
-          "_",Sys.Date(),".RData"))
+                                                  paste(year_bounds[,i],collapse= "-"),
+                                                  "_3_points",
+                                                  "_",Sys.Date(),".RData"))
     }
     else {
       save(model_list, all_summaries,file= paste0("../06_HLM_output/",
-        paste(year_bounds[,i],collapse= "-"),
-        "_3_years",
-        "_",Sys.Date(),".RData"))
+                                                  paste(year_bounds[,i],collapse= "-"),
+                                                  "_3_years",
+                                                  "_",Sys.Date(),".RData"))
     }
   }
   if(j==1){

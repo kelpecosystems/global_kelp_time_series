@@ -139,19 +139,19 @@ HLM_stan_fit <- function(data=model_data,
   
   ### fetch the data to be used in the model 
   data_for_stan <- with(data,
-    list(NG= length(unique(group_num)),
-      NSI= length(unique(SiteName)),
-      NST= nrow(unique(data[,c("SiteMethod","study_num")])),
-      NM= length(unique(SiteMethod)),
-      Group=group_num,
-      Site= site_num,
-      Study= study_num,
-      x=Year-mean(Year),
-      GroupSite = unique(data[,c("group_num","site_num")])[,1],
-      y=y,
-      N=nrow(data),
-      SiteMethod= unique(data[,c("SiteMethod","study_num")])[,1])
-    )
+                        list(NG= length(unique(group_num)),
+                             NSI= length(unique(SiteName)),
+                             NST= nrow(unique(data[,c("SiteMethod","study_num")])),
+                             NM= length(unique(SiteMethod)),
+                             Group=group_num,
+                             Site= site_num,
+                             Study= study_num,
+                             x=Year-mean(Year),
+                             GroupSite = unique(data[,c("group_num","site_num")])[,1],
+                             y=y,
+                             N=nrow(data),
+                             SiteMethod= unique(data[,c("SiteMethod","study_num")])[,1])
+  )
   
   fit <- with(MCMC_details,stan(model_code= model,data= data_for_stan,
                                 pars= params,
@@ -185,7 +185,7 @@ HLM_stan_fit <- function(data=model_data,
   groupings <- unique(data[,c("SiteName","group_name","group_num","site_num","study_num")])
   
   beta_mu_rep <-fit.params$beta_mu[,groupings$group_num,]
-
+  
   betas <- fit.params$beta+beta_mu_rep
   
   site_slope <- HPD.mean.fun(betas[,,2],probs= quantiles, chain_ID=chain_ID,
@@ -216,3 +216,4 @@ HLM_stan_fit <- function(data=model_data,
   waic_output <- waic(fit.params$log_lik)
   return(list(summary= output_summary,chains = fit.params,waic = waic_output,data_pred= data))
 }  
+
