@@ -23,7 +23,8 @@ levels(data$group_name) <- c(levels(data$group_name), "Northern and Central Cali
 data$group_name[data$group_name=="Northern California"]<-"Northern and Central California"
 levels(data$group_name) <- c(levels(data$group_name), "Gulf of St. Lawrence")
 data$group_name[data$group_name=="Gulf of St. Lawrence - Eastern Scotian Shelf"]<-"Gulf of St. Lawrence"
-
+levels(data$group_name) <- c(levels(data$group_name), "NE New Zealand")
+data$group_name[data$group_name=="Northeastern New Zealand"]<-"NE New Zealand"
 
 sites<-data[data$parameter=="site_slope",]
 eco_sites<-sites[sites$grouping=="Ecoregion",]
