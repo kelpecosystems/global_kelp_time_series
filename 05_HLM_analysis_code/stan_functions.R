@@ -117,9 +117,9 @@ min_sites_subset <- function(x,group_name,min_sites){
 
 
 #### function to fit the model and produce output ###
-HLM_stan_fit <- function(data=model_data,
+HLM_stan_fit <- function(data=data_subset,
                          group,min_num_sites=3, 
-                         params = pars,MCMC_details,quantiles= c(0.99,0.95,0.9),
+                         params = pars,MCMC_details=MCMC_details,quantiles= c(0.99,0.95,0.9),
                          model=HLM_model){
   ### rename groupings for convenience in Stan
   data$SiteName <- factor(factor(data$SiteName):factor(data$StudyName))
@@ -127,31 +127,35 @@ HLM_stan_fit <- function(data=model_data,
   data$group_num <- as.numeric(factor(data$group_name))
   data$study_num <- as.numeric(factor(data$StudyName))
   data$site_num <- as.numeric(data$SiteName)
-  
-  ### get site and grouping name info to combine with model output
-  GroupSite <- ddply(data,c("site_num","study_num","group_num","group_name","StudyName","SiteName"),
+ 
+   GroupSite <- ddply(data,c("site_num","study_num","group_num","group_name","StudyName","SiteName"),
                      summarise,group_num_site =unique(group_num))
   
+  
+  study_unit <- unique(data[,c("SiteMethod","study_num")])
+  study_unit$study_unit <- 1:nrow(study_unit)
   unique_study <- ddply(data,c("group_num"),summarise,N_studies = length(unique(study_num)))
   unique_site <- ddply(data,c("study_num"),summarise,N_sites = length(unique(site_num)))
   data <- join(data,unique_study)
   data <- join(data,unique_site)
+  data <- join(data,study_unit)
   
   ### fetch the data to be used in the model 
   data_for_stan <- with(data,
                         list(NG= length(unique(group_num)),
                              NSI= length(unique(SiteName)),
-                             NST= nrow(unique(data[,c("SiteMethod","study_num")])),
-                             NM= length(unique(SiteMethod)),
+                             NST= length(unique(study_unit)),
+                             NM=length(unique(SiteMethod)),
                              Group=group_num,
                              Site= site_num,
-                             Study= study_num,
+                             Study= study_unit,
                              x=Year-mean(Year),
                              GroupSite = unique(data[,c("group_num","site_num")])[,1],
                              y=y,
                              N=nrow(data),
                              SiteMethod= unique(data[,c("SiteMethod","study_num")])[,1])
   )
+
   
   fit <- with(MCMC_details,stan(model_code= model,data= data_for_stan,
                                 pars= params,
