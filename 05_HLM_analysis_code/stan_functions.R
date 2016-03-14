@@ -157,7 +157,7 @@ HLM_stan_fit <- function(data=data_subset,
   )
 
   
-  fit <- with(MCMC_details,stan(model_code= model,data= data_for_stan,
+  fit <- with(MCMC_details,stan(model_code= HLM_model,data= data_for_stan,
                                 pars= params,
                                 iter= n.iter,thin= n.thin,warmup= n.burnin,
                                 chains=n.chains,

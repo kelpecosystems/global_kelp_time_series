@@ -17,7 +17,7 @@ HLM_model <-
     parameters {
       vector[2] beta[NSI]; // site level parameters
       vector[2] beta_mu[NG]; // Group level parameters
-      vector<lower= 0.000001,upper= 5>[2] sigma_beta; // ranef sd
+      vector<lower= 0.000001,upper= 10>[2] sigma_beta; // ranef sd
       cholesky_factor_corr[2] L_omega_beta; // ranef site cholesky factors
       vector<lower=0.000001, upper= 5>[NST] sd_e; // error sd
       vector<lower=0.000001, upper= 3>[NM] A; // half-cauchy scale parameter

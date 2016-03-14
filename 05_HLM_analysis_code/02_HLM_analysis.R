@@ -33,8 +33,8 @@ params_for_stan <- c("beta","beta_mu",
                      "resid","log_lik")
 
 ### MCMC details
-MCMC_details <- list(n.iter =3000,
-                     n.burnin = 1000,
+MCMC_details <- list(n.iter = 3000,
+                     n.burnin = 1500,
                      set.seed = 234,
                      n.chains = 3,
                      n.thin = 1)
@@ -47,6 +47,10 @@ source("stan_functions.R")
 
 ### fetch plotting functions ###
 source("plot_funs.R")
+
+### compile model
+opt_model<-stan_model(model_code=HLM_model)
+
 
 for (j in 1:2){ 
   if(j==1){
@@ -76,18 +80,16 @@ for (j in 1:2){
     grouping_list <- c("Ecoregion","Province","Realm","World")
     
   for (i in 1:ncol(year_bounds)){
-    
     ### make sure each group has the minimum number of sites
     data_subset <- years_subset(model_data,min_obs,x_min=year_bounds[1,i], x_max=year_bounds[2,i])
     
     ### make sure each group has the minimum number of sites
     data_subset <- min_sites_subset(data_subset,"EcoregionName",min_sites=min_num_sites)
     
-    
     ### wrapper using correct data, parameters and mcmc details to pass to mclapply for parallel sampling
     fit.fun <- function(x) {
       HLM_stan_fit(group=x, data= data_subset,params= params_for_stan, MCMC_details= MCMC_details)
-    }  
+    } 
     model_list <- mclapply(grouping_list,fit.fun,mc.cores= 4)
     
     ### combine the summary data for each model 
@@ -161,7 +163,7 @@ options <- theme(strip.text.x = element_text(size =6),
 load("../06_HLM_output/1900-2015_3_points_2016-03-09.RData")
 load("../06_HLM_output/combined_model_summaries_3_points_2016-03-09.RData")
 
-for (j in 1:1){
+for (j in 1:4){
   ### get model results
   model_results <- model_list[[j]]$data_pred
   model_results$x <- model_results$Year- mean(model_results$Year)
