@@ -26,7 +26,10 @@ params$bayesian_probability <- gsub("0.1", "90%", params$bayesian_probability)
 
 slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
                      addP = TRUE, pathCol="black", pathSize=2, limits=c(-0.3, 0.3), 
-                     fillPal=rev(diverge_hsv(3)), ...){
+                     #fillPal=rev(diverge_hsv(3)), 
+                     #fillPal=brewer.pal(11, "RdYlBu"),
+                     fillPal=rev(diverge_hsv(20, power=0.4)),
+                     ...){
   
     pathColNow <- pathCol
     adf <- params %>% filter(grouping==geoGroup &
