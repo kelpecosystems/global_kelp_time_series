@@ -6,7 +6,7 @@
 
 library(rstan);library(plyr);library(gdata);library(ggplot2)
 library(parallel);library(grid);library(coda);library(rdrop2)
-library(reshape2);library(quantreg)
+library(reshape2);library(quantreg);library(dplyr)
 
 cat("Stan version:", stan_version(), "\n")
 rstan_options(auto_write = TRUE)
@@ -160,61 +160,77 @@ options <- theme(strip.text.x = element_text(size =6),
 
 ### generate plots for each of the j groupings and i groups within each grouping 
 ### plotting code is in a separate function file
-load("../06_HLM_output/1900-2015_3_points_2016-03-09.RData")
-load("../06_HLM_output/combined_model_summaries_3_points_2016-03-09.RData")
+load("~/Dropbox/nceas_kelp_data/temporal_change_big/HLME_Output/1900-2015_3_points_2016-03-11.RData")
+load("../06_HLM_output/combined_model_summaries_3_points_2016-03-11.RData")
+source("plot_funs.R")
 
-for (j in 1:4){
-  ### get model results
-  model_results <- model_list[[j]]$data_pred
-  model_results$x <- model_results$Year- mean(model_results$Year)
-  
-  ### generate site level mean predictions ###
-  model_results$pred <-  exp(colMeans(model_list[[j]]$chains$y_loc))
-  
+### ugly loop to generate all figures 
+for (j in 2:4){
+  ### get model results and generate site level mean predictions ###
+  model_results <- model_list[[j]]$data_pred %>% 
+    mutate(x= Year- mean(Year),pred=exp(colMeans(model_list[[j]]$chains$y_loc))) %>%
+    group_by(SiteName) %>%
+    mutate(Year_group_cent= Year-mean(Year),
+           log_y_cent= exp(log(y)-mean(log(y))),
+           log_pred_cent= exp(log(pred)-mean(log(pred))))
+
   ### get list of group IDs ###
   group_ID <- subset(model_list[[j]]$summary,parameter=="mean_slope")$group_name
   
+  ### get list of site p-values and center data ###
+  model_results <- model_list[[j]]$summary %>% 
+    filter(parameter=="site_slope")%>%
+    select(one_of(c("SiteName","p")))%>%
+    mutate(signif= p>=0.95|p<0.05)%>%join(model_results) 
+    
   ### generate PDFs (while setting heights of plots equal using grobs ###
   ### be patient!! the quantile regressions to generate smooth credible sets takes a bit.
   pdf(width= 8, height= 6,file= paste("../Figures/full_dataset_predictions_",  grouping_list[j],".pdf",sep= ""))
   if(j==1){
-    a <- plot_fun_1(23)
+    a <- plot_fun_1(23,quant_method="other")
     gA <- ggplotGrob(a$p1)
-    gB <- ggplotGrob(a$p1)
+    gB <- ggplotGrob(a$p2)
     for (i in 1:nlevels(factor(model_results$group_name))){
-      b <- plot_fun_1(i)
+      b <- plot_fun_1(i,quant_method="other")
       gAa <- ggplotGrob(b$p1)
       gBb <- ggplotGrob(b$p2)
+      gCc <- ggplotGrob(b$p3)
       gAa$heights <- gA$heights
       gBb$heights <- gB$heights
       grid.draw(gAa)
       grid.newpage()
       grid.draw(gBb) 
+      grid.newpage()
+      grid.draw(gCc) 
       grid.newpage()
     }
   }
   if (j==2){
-    a <- plot_fun_1(4)
+    a <- plot_fun_2(4,quant_method="other")
     gA <- ggplotGrob(a$p1)
     gB <- ggplotGrob(a$p2)
     for (i in 1:nlevels(factor(model_results$group_name))){
-      b <- plot_fun_1(i)
+      b <- plot_fun_2(i,quant_method="other")
       gAa <- ggplotGrob(b$p1)
       gBb <- ggplotGrob(b$p2)
+      gCc <- ggplotGrob(b$p3)
       gAa$heights <- gA$heights
       gBb$heights <- gB$heights
       grid.draw(gAa)
       grid.newpage()
       grid.draw(gBb) 
+      grid.newpage()
+      grid.draw(gCc) 
       grid.newpage()
     }
   }
   if (j%in%c(3,4)){
     for (i in 1:nlevels(factor(model_results$group_name))){
-      a <- plot_fun_2(i)
+      a <- plot_fun_2(i,quant_method="other")
       
       print(a$p1)
       print(a$p2)
+      print(a$p3)
     }
   }
   dev.off()
