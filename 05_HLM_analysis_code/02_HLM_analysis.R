@@ -160,21 +160,31 @@ options <- theme(strip.text.x = element_text(size =6),
 
 ### generate plots for each of the j groupings and i groups within each grouping 
 ### plotting code is in a separate function file
+
 load("../06_HLM_output/1900-2015_3_points_2016-03-11.RData")
 load("../06_HLM_output/combined_model_summaries_3_points_2016-03-11.RData")
 source("plot_funs.R")
 
-for (j in 1:4){
-  ### get model results
-  model_results <- model_list[[j]]$data_pred
-  model_results$x <- model_results$Year- mean(model_results$Year)
-  
-  ### generate site level mean predictions ###
-  model_results$pred <-  exp(colMeans(model_list[[j]]$chains$y_loc))
-  
+
+### ugly loop to generate all figures 
+for (j in 2:4){
+  ### get model results and generate site level mean predictions ###
+  model_results <- model_list[[j]]$data_pred %>% 
+    mutate(x= Year- mean(Year),pred=exp(colMeans(model_list[[j]]$chains$y_loc))) %>%
+    group_by(SiteName) %>%
+    mutate(Year_group_cent= Year-mean(Year),
+           log_y_cent= exp(log(y)-mean(log(y))),
+           log_pred_cent= exp(log(pred)-mean(log(pred))))
+
   ### get list of group IDs ###
   group_ID <- subset(model_list[[j]]$summary,parameter=="mean_slope")$group_name
   
+  ### get list of site p-values and center data ###
+  model_results <- model_list[[j]]$summary %>% 
+    filter(parameter=="site_slope")%>%
+    select(one_of(c("SiteName","p")))%>%
+    mutate(signif= p>=0.95|p<0.05)%>%join(model_results) 
+    
   ### generate PDFs (while setting heights of plots equal using grobs ###
   ### be patient!! the quantile regressions to generate smooth credible sets takes a bit.
   pdf(width= 8, height= 6,file= paste("../Figures/full_dataset_predictions_",  grouping_list[j],".pdf",sep= ""))
