@@ -172,7 +172,7 @@ eco_sites_ALL$Period<-factor(eco_sites_ALL$Period, levels=rev(levels(eco_sites_A
 
 mylab<-expression(paste(bold('Proportional change'), bold(' yr'^{-1})))
 
-pdf(width= 24,height= 16,"~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/slopes_ecoregion_ALL_95.pdf")
+pdf(width= 20,height= 15,"~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/slopes_ecoregion_ALL_95.pdf")
 ggplot(data=eco_mu_ALL) + 
   geom_point(aes(x=mean, y=group_name, colour=DF0), size=7)+
   scale_colour_manual(values=c("black","red"))+
@@ -185,11 +185,11 @@ ggplot(data=eco_mu_ALL) +
   theme(panel.grid.minor = element_blank(), 
         legend.position="none", 
         axis.title.x=element_text(size=32, face="bold"),
-        axis.title.y=element_text(size=32, face="bold", vjust=2),
+        axis.title.y=element_text(size=32, face="bold"),
         axis.text.y=element_text(size=28),
         axis.text.x=element_text(size=24),
         strip.text = element_text(size=32, face="bold"),
-        panel.margin = unit(10, "mm"),
+        panel.margin = unit(8, "mm"),
         strip.background=element_blank())
 dev.off()
 

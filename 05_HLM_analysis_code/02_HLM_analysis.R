@@ -59,7 +59,7 @@ for (j in 1:2){
   else{
     kelpdata <- read.csv("formatted_data_3years.csv")
   }
-
+j=1
   ### array of sampling year constraints (each column is a sampling period)
   year_bounds <- array(c(1900,2015,1983,1992,1993,2002,2003,2012),dim= c(2,4))
   
@@ -79,7 +79,7 @@ for (j in 1:2){
     model_data <- model_data[order(model_data$SiteName),]
     grouping_list <- c("Ecoregion","Province","Realm","World")
     
-  for (i in 1:ncol(year_bounds)){
+  for (i in 4:ncol(year_bounds)){
     ### make sure each group has the minimum number of sites
     data_subset <- years_subset(model_data,min_obs,x_min=year_bounds[1,i], x_max=year_bounds[2,i])
     
@@ -160,12 +160,16 @@ options <- theme(strip.text.x = element_text(size =6),
 
 ### generate plots for each of the j groupings and i groups within each grouping 
 ### plotting code is in a separate function file
-load("~/Dropbox/nceas_kelp_data/temporal_change_big/HLME_Output/1900-2015_3_points_2016-03-11.RData")
-load("../06_HLM_output/combined_model_summaries_3_points_2016-03-11.RData")
+
+load(paste0("../06_HLM_output/1900-2015",
+            "_3_points_",Sys.Date(),".RData"))
+load(paste0("../06_HLM_output/combined_model_summaries",
+            "_3_points_",Sys.Date(),".RData"))
 source("plot_funs.R")
 
+
 ### ugly loop to generate all figures 
-for (j in 2:4){
+for (j in 1:4){
   ### get model results and generate site level mean predictions ###
   model_results <- model_list[[j]]$data_pred %>% 
     mutate(x= Year- mean(Year),pred=exp(colMeans(model_list[[j]]$chains$y_loc))) %>%
@@ -187,11 +191,11 @@ for (j in 2:4){
   ### be patient!! the quantile regressions to generate smooth credible sets takes a bit.
   pdf(width= 8, height= 6,file= paste("../Figures/full_dataset_predictions_",  grouping_list[j],".pdf",sep= ""))
   if(j==1){
-    a <- plot_fun_1(23,quant_method="other")
+    a <- plot_fun_1(23)
     gA <- ggplotGrob(a$p1)
     gB <- ggplotGrob(a$p2)
     for (i in 1:nlevels(factor(model_results$group_name))){
-      b <- plot_fun_1(i,quant_method="other")
+      b <- plot_fun_1(i)
       gAa <- ggplotGrob(b$p1)
       gBb <- ggplotGrob(b$p2)
       gCc <- ggplotGrob(b$p3)
@@ -206,11 +210,11 @@ for (j in 2:4){
     }
   }
   if (j==2){
-    a <- plot_fun_2(4,quant_method="other")
+    a <- plot_fun_1(4)
     gA <- ggplotGrob(a$p1)
     gB <- ggplotGrob(a$p2)
     for (i in 1:nlevels(factor(model_results$group_name))){
-      b <- plot_fun_2(i,quant_method="other")
+      b <- plot_fun_1(i)
       gAa <- ggplotGrob(b$p1)
       gBb <- ggplotGrob(b$p2)
       gCc <- ggplotGrob(b$p3)
@@ -226,7 +230,7 @@ for (j in 2:4){
   }
   if (j%in%c(3,4)){
     for (i in 1:nlevels(factor(model_results$group_name))){
-      a <- plot_fun_2(i,quant_method="other")
+      a <- plot_fun_2(i)
       
       print(a$p1)
       print(a$p2)
