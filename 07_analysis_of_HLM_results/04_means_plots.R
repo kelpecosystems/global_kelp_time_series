@@ -99,10 +99,9 @@ plot1<-ggplot(data=sitedata2)+
         legend.position="none",
         plot.title = element_text(size=10),
         axis.title.x = element_text(size=12),
-        axis.text.x = element_text(size=10),
+        axis.text.x = element_text(size=6),
         axis.title.y = element_text(size=12),
-        strip.text = element_text(size=10),
-        strip.text.x = element_text(size=12))+
+        strip.text = element_text(size=8))+
   labs(title=sitedata2$Realm)+
   labs(x=mylab, y="Ecoregion", size=24)
 
