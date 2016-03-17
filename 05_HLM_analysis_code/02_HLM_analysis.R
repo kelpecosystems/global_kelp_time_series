@@ -15,7 +15,7 @@ rstan_options(auto_write = TRUE)
 rm(list=ls())
 
 ### be sure to set working directory to the github repo
-setwd()
+#setwd()
 
 source("05_HLM_analysis_code/01_data_formatting.R")
 setwd("../05_HLM_analysis_code/")
@@ -33,11 +33,12 @@ params_for_stan <- c("beta","beta_mu",
                      "resid","log_lik")
 
 ### MCMC details
-MCMC_details <- list(n.iter = 3000,
-                     n.burnin = 1500,
-                     set.seed = 234,
-                     n.chains = 3,
-                     n.thin = 1)
+MCMC_details <- list(n.iter = 2000,
+                     n.burnin = 1000,
+                     set.seed = 15720,
+                     n.chains = 4,
+                     n.thin = 1,
+                     n.cores = 4)
 
 ### fetch the model ###
 source("stan_model.R")
@@ -59,7 +60,6 @@ for (j in 1:2){
   else{
     kelpdata <- read.csv("formatted_data_3years.csv")
   }
-j=1
   ### array of sampling year constraints (each column is a sampling period)
   year_bounds <- array(c(1900,2015,1983,1992,1993,2002,2003,2012),dim= c(2,4))
   
@@ -77,9 +77,9 @@ j=1
     
     ### order data
     model_data <- model_data[order(model_data$SiteName),]
-    grouping_list <- c("Ecoregion","Province","Realm","World")
+    grouping_list <- c("Ecoregion","World")
     
-  for (i in 4:ncol(year_bounds)){
+  for (i in 1:ncol(year_bounds)){
     ### make sure each group has the minimum number of sites
     data_subset <- years_subset(model_data,min_obs,x_min=year_bounds[1,i], x_max=year_bounds[2,i])
     
@@ -90,8 +90,10 @@ j=1
     fit.fun <- function(x) {
       HLM_stan_fit(group=x, data= data_subset,params= params_for_stan, MCMC_details= MCMC_details)
     } 
-    model_list <- mclapply(grouping_list,fit.fun,mc.cores= 4)
-    
+    Eco_model <- fit.fun("Ecoregion")
+    World_model <- fit.fun("World")
+    model_list <- list(Eco_model,World_model)
+      
     ### combine the summary data for each model 
     all_summaries <- rbind.fill(lapply(model_list,function(x) x$summary))
     
@@ -157,7 +159,7 @@ options <- theme(strip.text.x = element_text(size =6),
                  axis.title.x=element_blank(),
                  legend.key.size = unit(1,"lines"),
                  plot.margin = unit(rep(0.3, 4), "inches"))
-
+grouping_list <- c("Ecoregion","World")
 ### generate plots for each of the j groupings and i groups within each grouping 
 ### plotting code is in a separate function file
 
@@ -169,7 +171,7 @@ source("plot_funs.R")
 
 
 ### ugly loop to generate all figures 
-for (j in 1:4){
+for (j in 2:2){
   ### get model results and generate site level mean predictions ###
   model_results <- model_list[[j]]$data_pred %>% 
     mutate(x= Year- mean(Year),pred=exp(colMeans(model_list[[j]]$chains$y_loc))) %>%
@@ -210,25 +212,6 @@ for (j in 1:4){
     }
   }
   if (j==2){
-    a <- plot_fun_1(4)
-    gA <- ggplotGrob(a$p1)
-    gB <- ggplotGrob(a$p2)
-    for (i in 1:nlevels(factor(model_results$group_name))){
-      b <- plot_fun_1(i)
-      gAa <- ggplotGrob(b$p1)
-      gBb <- ggplotGrob(b$p2)
-      gCc <- ggplotGrob(b$p3)
-      gAa$heights <- gA$heights
-      gBb$heights <- gB$heights
-      grid.draw(gAa)
-      grid.newpage()
-      grid.draw(gBb) 
-      grid.newpage()
-      grid.draw(gCc) 
-      grid.newpage()
-    }
-  }
-  if (j%in%c(3,4)){
     for (i in 1:nlevels(factor(model_results$group_name))){
       a <- plot_fun_2(i)
       
