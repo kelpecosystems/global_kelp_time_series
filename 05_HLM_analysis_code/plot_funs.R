@@ -9,8 +9,8 @@ plot_fun_1 <- function(ident) {
            log_pred_cent= exp(log(pred)-mean(log(pred))))
   
   ### generate 100 points for aggregate predictions
-  newdata <- data.frame(list(x= seq(from= min(data$x),to= max(data$x),length.out= 40),
-                             Year_group_cent= seq(from= min(data$Year_group_cent),to= max(data$Year_group_cent),length.out= 40)))
+  newdata <- data.frame(list(x= seq(from= min(data$x),to= max(data$x),length.out= 100),
+                             Year_group_cent= seq(from= min(data$Year_group_cent),to= max(data$Year_group_cent),length.out= 100)))
   
   ### generate full range of ecoregion level predictions ###
   pred_fun <- function(x) model_list[[j]]$chains$beta_mu[,ident,1]+model_list[[j]]$chains$beta_mu[,ident,2]*x
@@ -122,8 +122,8 @@ plot_fun_2 <- function(ident) {
            log_pred_cent= exp(log(pred)-mean(log(pred))))
   
   ### generate 100 points for aggregate predictions
-  newdata <- data.frame(list(x= seq(from= min(data$x),to= max(data$x),length.out= 40),
-                             Year_group_cent= seq(from= min(data$Year_group_cent),to= max(data$Year_group_cent),length.out= 40)))
+  newdata <- data.frame(list(x= seq(from= min(data$x),to= max(data$x),length.out= 100),
+                             Year_group_cent= seq(from= min(data$Year_group_cent),to= max(data$Year_group_cent),length.out= 100)))
   
   ### generate full range of ecoregion level predictions ###
   pred_fun <- function(x) model_list[[j]]$chains$beta_mu[,ident,1]+model_list[[j]]$chains$beta_mu[,ident,2]*x
