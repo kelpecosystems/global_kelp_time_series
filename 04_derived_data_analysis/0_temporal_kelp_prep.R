@@ -42,7 +42,7 @@ singletonIDX <- apply(singletons, 1, function(arow) which(rawData$Study==arow[2]
 if(length(singletonIDX)>0) rawDataMod <- rawData[-singletonIDX,]
 
 ###########
-#deal with sites that only have no kelp
+#deal with sites that only have kelp
 ###########
 nokelp <- ddply(rawDataMod, .(study_ID, Study, Site), summarise, kelp = sum(focalKelp, na.rm=T))
 nokelp <- nokelp[which(nokelp$kelp==0),]
