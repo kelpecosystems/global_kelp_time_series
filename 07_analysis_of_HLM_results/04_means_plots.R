@@ -1,15 +1,15 @@
 ########################################################################
 #### A script to plot temporal change data from NCEAS kelp database ####
 #### Created by D. Okamoto and edited by K. Krumhansl               ####
-#### Last edited Feb 2 2016                                         ####
+#### Last edited March 29 2016                                      ####
 ########################################################################
 
+setwd("~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/07_analysis_of_HLM_results")
 
 library(ggplot2)
+library(dplyr)
 
-setwd("~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/06_HLM_output")
-
-data<-read.csv("site_slopes_3_points.csv")
+data<-read.csv("../06_HLM_output/site_slopes_3_points.csv")
 #data<-read.csv("site_slopes.csv")
 
 ####shortening and correcting some ecoregion names####
@@ -70,18 +70,33 @@ ecoregiondata$sign<-ecoregiondata$DF0*ecoregiondata$lower_0.9_q
   
 sitedata$Site2 <- 1:nrow(sitedata)
 
-realm_info<-realm_sites[c("SiteName", "group_name")]
-colnames(realm_info)[2]<-"Realm"
-sitedata<-merge(sitedata, realm_info, by="SiteName")
+#assigning realm info
+region_info<-read.csv("../03_derived_data/CleanDataWithRegions.csv")
+realm_info<-region_info[c("ECOREGION", "REALM")]
+realm_info<-distinct(realm_info)
+colnames(realm_info)[1]<-"group_name"
 
-realm_eco_info<-sitedata[c("group_name", "Realm")]
-ecoregiondata<-merge(ecoregiondata, realm_eco_info, by="group_name")
+levels(realm_info$group_name) <- c(levels(realm_info$group_name), "Beaufort Sea")
+realm_info$group_name[realm_info$group_name=="Beaufort Sea - continental coast and shelf"]<-"Beaufort Sea"
+levels(realm_info$group_name) <- c(levels(realm_info$group_name), "Gulf of Maine")
+realm_info$group_name[realm_info$group_name == "Gulf of Maine/Bay of Fundy"]<-"Gulf of Maine"
+levels(realm_info$group_name) <- c(levels(realm_info$group_name), "Oregon, Washington, Vancouver Is.")
+realm_info$group_name[realm_info$group_name=="Oregon, Washington, Vancouver Coast and Shelf"]<-"Oregon, Washington, Vancouver Is."
+levels(realm_info$group_name) <- c(levels(realm_info$group_name), "Northern and Central California")
+realm_info$group_name[realm_info$group_name=="Northern California"]<-"Northern and Central California"
+levels(realm_info$group_name) <- c(levels(realm_info$group_name), "Gulf of St. Lawrence")
+realm_info$group_name[realm_info$group_name=="Gulf of St. Lawrence - Eastern Scotian Shelf"]<-"Gulf of St. Lawrence"
+levels(realm_info$group_name) <- c(levels(realm_info$group_name), "NE New Zealand")
+realm_info$group_name[realm_info$group_name=="Northeastern New Zealand"]<-"NE New Zealand"
+
+sitedata<-merge(sitedata, realm_info, by="group_name")
+ecoregiondata<-merge(ecoregiondata, realm_info, by="group_name")
 
 mylab<-expression(paste(plain('Proportional change'), plain(' yr'^{-1})))
 
-for (i in 1:nlevels(factor(sitedata$Realm))){
-   sitedata2 <- subset(sitedata,Realm==levels(factor(sitedata$Realm))[i])
-   ecoregiondata2 <- subset(ecoregiondata,Realm==levels(factor(sitedata$Realm))[i])
+for (i in 1:nlevels(factor(sitedata$REALM))){
+   sitedata2 <- subset(sitedata,REALM==levels(factor(sitedata$REALM))[i])
+   ecoregiondata2 <- subset(ecoregiondata,REALM==levels(factor(sitedata$REALM))[i])
 
 plot1<-ggplot(data=sitedata2)+
   geom_rect(aes(xmax= upper_0.9_q,xmin= lower_0.9_q,ymin= ymin,ymax= ymax, fill=factor(DF0)),data= ecoregiondata2)+
@@ -102,34 +117,34 @@ plot1<-ggplot(data=sitedata2)+
         axis.text.x = element_text(size=6),
         axis.title.y = element_text(size=12),
         strip.text = element_text(size=8))+
-  labs(title=sitedata2$Realm)+
+  labs(title=sitedata2$REALM)+
   labs(x=mylab, y="Ecoregion", size=24)
 
-assign(paste("realm_", i, sep = ""), plot1)
+assign(paste("REALM_", i, sep = ""), plot1)
 }
 
-pdf(height=2.4, width=2.3, "~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/Arctic.pdf")
-print(realm_1)
+pdf(height=2.4, width=2.3, "../Figures/HLM_means_plots/Arctic.pdf")
+print(REALM_1)
 dev.off()
 
-pdf(height=6, width=6, "~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/Temperate Australiasia.pdf")
-print(realm_2)
+pdf(height=6, width=6, "../Figures/HLM_means_plots/Temperate Australiasia.pdf")
+print(REALM_2)
 dev.off()
 
-pdf(height=6, width=6, "~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/Temperate North Atlantic.pdf")
-print(realm_3)
+pdf(height=6, width=6, "../Figures/HLM_means_plots/Temperate North Atlantic.pdf")
+print(REALM_3)
 dev.off()
 
-pdf(height=4.24, width=6, "~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/Temperate Northern Pacific.pdf")
-print(realm_4)
+pdf(height=4.24, width=6, "../Figures/HLM_means_plots/Temperate Northern Pacific.pdf")
+print(REALM_4)
 dev.off()
 
-pdf(height=2.4, width=4.25, "~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/Temperate South America.pdf")
-print(realm_5)
+pdf(height=2.4, width=4.25, "../Figures/HLM_means_plots/Temperate South America.pdf")
+print(REALM_5)
 dev.off()
 
-pdf(height=2.5, width=4.25, "~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/Temperate South Africa.pdf")
-print(realm_6)
+pdf(height=2.5, width=4.25, "../Figures/HLM_means_plots/Temperate South Africa.pdf")
+print(REALM_6)
 dev.off()
 
 
@@ -172,24 +187,26 @@ eco_sites_ALL$Period<-factor(eco_sites_ALL$Period, levels=rev(levels(eco_sites_A
 
 mylab<-expression(paste(bold('Proportional change'), bold(' yr'^{-1})))
 
-pdf(width= 20,height= 15,"~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/slopes_ecoregion_ALL_95.pdf")
+pdf(width= 20,height= 16,"../Figures/HLM_means_plots/slopes_ecoregion_ALL_95.pdf")
 ggplot(data=eco_mu_ALL) + 
   geom_point(aes(x=mean, y=group_name, colour=DF0), size=7)+
   scale_colour_manual(values=c("black","red"))+
-  geom_errorbarh(aes(y=group_name,x=mean,xmin=lower_0.9_q,xmax=upper_0.9_q), height=0,size= .5, facet=TRUE)+
+  geom_errorbarh(aes(y=group_name,x=mean,xmin=lower_0.9_q,xmax=upper_0.9_q), height=0,size= .5)+
   geom_vline(xintercept= 0,size= 1,linetype= "dotted")+
   geom_point(aes(x=mean, y=group_name), data=eco_sites_ALL, size=2, position="jitter", alpha=0.15)+
   facet_grid(~Period)+
   labs(x=mylab, y="Ecoregion")+
+  scale_x_continuous(breaks=c(-0.5, -0.25, 0.0, 0.25, 0.5), labels=c("-0.5", " ", "0.0", " ", "0.5"))+
   theme_bw()+
   theme(panel.grid.minor = element_blank(), 
         legend.position="none", 
-        axis.title.x=element_text(size=32, face="bold"),
-        axis.title.y=element_text(size=32, face="bold"),
-        axis.text.y=element_text(size=28),
+        axis.title.x=element_text(size=28, face="bold"),
+        axis.title.y=element_text(size=28, face="bold", vjust=2),
+        axis.text.y=element_text(size=24),
         axis.text.x=element_text(size=24),
-        strip.text = element_text(size=32, face="bold"),
-        panel.margin = unit(8, "mm"),
+        strip.text = element_text(size=28, face="bold"),
+        panel.margin = unit(20, "mm"),
+        plot.margin = unit(c(10,10,10,10), "mm"),
         strip.background=element_blank())
 dev.off()
 
@@ -222,7 +239,7 @@ worlddata$DF0 <- ifelse(sign(worlddata$upper_0.9_q)==sign(worlddata$lower_0.9_q)
 sitedata$Site2 <- 1:nrow(sitedata)
 
 
-pdf(width= 15,height= 15,"~/Dropbox/nceas_kelp_climate_2013/temporal_change/github_repo/Figures/HLM_means_plots/slopes_facets_world_FULL_95.pdf")
+pdf(width= 15,height= 15,"../Figures/HLM_means_plots/slopes_facets_world_FULL_95.pdf")
 ggplot(data=sitedata)+
   geom_rect(aes(xmax= upper_0.9_q,xmin= lower_0.9_q,ymin= ymin,ymax= ymax,fill=factor(DF0)),data= worlddata)+
   geom_vline(aes(xintercept= mean),colour= "black",data= worlddata)+

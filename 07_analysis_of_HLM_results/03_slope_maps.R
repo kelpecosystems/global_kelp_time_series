@@ -26,7 +26,11 @@ params$bayesian_probability <- gsub("0.1", "90%", params$bayesian_probability)
 
 slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
                      addP = TRUE, pathCol="black", pathSize=2, limits=c(-0.3, 0.3), 
-                     fillPal=rev(diverge_hsv(3)), ...){
+                     #fillPal=rev(diverge_hsv(3)), 
+                     #fillPal=brewer.pal(11, "RdYlBu"),
+                     fillPal=rev(diverge_hsv(20, power=0.4)),
+                     add.worldmap=T,
+                     ...){
   
     pathColNow <- pathCol
     adf <- params %>% filter(grouping==geoGroup &
@@ -40,7 +44,7 @@ slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
                 type=toupper(geoGroup),
                 regionColName="group_name", 
                 guide=guide_colorbar(title="Estimated\nSlope"),
-                add.worldmap=T, pathCol=NA, limits=limits, ...)+ 
+                add.worldmap=add.worldmap, pathCol=NA, limits=limits, ...)+ 
           xlab("\nLongitude") + ylab("\nLatitude")
     
     if(addP){
@@ -114,3 +118,30 @@ print(slopeMap("Realm", Timespan="2003-2012")+ggtitle("2003-2012"))
 dev.off()
 
 
+jpeg("../Figures/HLM_slope_maps/ecoregion_slope_map_oz.jpg", height=768, width=1024, type = c("quartz"))
+print(slopeMap() + xlim(c(100,200)) + ylim(c(-60,0)))
+dev.off()
+
+
+##### Zoom in for ecoregion plots
+jpeg("../Figures/HLM_slope_maps/ecoregion_slope_map_atlantic.jpg", height=768, width=1024, type = c("quartz"))
+print(slopeMap() + xlim(c(-100,30)) + ylim(c(30,90)))
+dev.off()
+
+jpeg("../Figures/HLM_slope_maps/ecoregion_slope_map_ne_atlantic.jpg", height=768, width=1024, type = c("quartz"))
+print(slopeMap() + xlim(c(-20,30)) + ylim(c(30,70)))
+dev.off()
+
+jpeg("../Figures/HLM_slope_maps/ecoregion_slope_map_nw_atlantic.jpg", height=768, width=1024, type = c("quartz"))
+print(slopeMap() + xlim(c(-80,-50)) + ylim(c(35,60)))
+dev.off()
+
+
+jpeg("../Figures/HLM_slope_maps/ecoregion_slope_map_ne_pacific.jpg", height=768, width=1024, type = c("quartz"))
+print(slopeMap() + xlim(c(-180,-110)) + ylim(c(15,80)))
+dev.off()
+
+
+jpeg("../Figures/HLM_slope_maps/ecoregion_slope_map_s_amer.jpg", height=768, width=1024, type = c("quartz"))
+print(slopeMap() + xlim(c(-100,-30)) + ylim(c(-65,15)))
+dev.off()

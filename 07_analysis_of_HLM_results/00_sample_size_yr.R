@@ -32,3 +32,24 @@ si_f<-cbind(site.freq)
 pdf(width= 7,height= 4,"../Figures/sites_by_year.pdf")
 barplot(site.freq, xlab="Year", ylab="Number of Sites", cex.lab=1.5)
 dev.off()
+
+library(tidyr)
+dur <- rw %>% 
+  group_by(trajectory_ID) %>%
+  dplyr::summarise(Duration = max(year) - min(year)) %>%
+  ungroup() %>%
+  group_by(Duration) %>%
+  dplyr::summarise(num_sites = length(Duration)) %>%
+  ungroup() %>%
+  filter(Duration>2)  %>%
+  complete(Duration, fill=list(num_sites=0))
+
+
+durTab <- dur$num_sites
+names(durTab) <- dur$Duration
+
+pdf(width= 7,height= 4,"../Figures/duration_distribution.pdf")
+par(mar=c(5.1,5,4.1,2.1))
+barplot(durTab, xlab="Study Duration", 
+        ylab="Number of Sites", cex.lab=1.5)
+pdf()
