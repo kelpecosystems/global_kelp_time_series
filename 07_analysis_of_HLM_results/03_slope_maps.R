@@ -67,7 +67,11 @@ slopeMap <- function(geoGroup="Ecoregion", Timespan="1900-2015",
 }
 
 jpeg("../Figures/HLM_slope_maps/ecoregion_slope_map.jpg", height=768, width=1024, type = c("quartz"))
-print(slopeMap())
+print(slopeMap()+theme_bw(base_size=20))
+dev.off()
+
+pdf("../Figures/HLM_slope_maps/ecoregion_slope_map.pdf", width= 11,height= 14)
+print(slopeMap()+theme_bw(base_size=20))
 dev.off()
 
 jpeg("../Figures/HLM_slope_maps/ecoregion_slope_map_1983-1992.jpg", height=768, width=1024, type = c("quartz"))

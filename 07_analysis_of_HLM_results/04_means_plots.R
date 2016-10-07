@@ -38,8 +38,6 @@ realm_mu<-means[means$grouping=="Realm",]
 world_mu<-means[means$grouping=="World",]
 
 
-
-
 #############################
 ####ecoregion facet plots####
 #############################
@@ -187,23 +185,25 @@ eco_sites_ALL$Period<-factor(eco_sites_ALL$Period, levels=rev(levels(eco_sites_A
 
 mylab<-expression(paste(bold('Proportional change'), bold(' yr'^{-1})))
 
-pdf(width= 20,height= 16,"../Figures/HLM_means_plots/slopes_ecoregion_ALL_95.pdf")
+pdf("../Figures/HLM_means_plots/slopes_ecoregion_ALL_95.pdf", height=18, width=18)
+#jpeg("../Figures/HLM_means_plots/slopes_ecoregion_ALL_95.jpg", height=1024, width=1224, type = c("quartz"))
 ggplot(data=eco_mu_ALL) + 
-  geom_point(aes(x=mean, y=group_name, colour=DF0), size=7)+
-  scale_colour_manual(values=c("black","red"))+
+  geom_point(aes(x=mean, y=group_name), size=8.5, colour="black")+
+  geom_point(aes(x=mean, y=group_name,colour=DF0), size=7)+
+  scale_colour_manual(values=c("black","lightcoral"))+
   geom_errorbarh(aes(y=group_name,x=mean,xmin=lower_0.9_q,xmax=upper_0.9_q), height=0,size= .5)+
   geom_vline(xintercept= 0,size= 1,linetype= "dotted")+
-  geom_point(aes(x=mean, y=group_name), data=eco_sites_ALL, size=2, position="jitter", alpha=0.15)+
+  #geom_point(aes(x=mean, y=group_name), data=eco_sites_ALL, size=2, position="jitter", alpha=0.15)+
   facet_grid(~Period)+
   labs(x=mylab, y="Ecoregion")+
   scale_x_continuous(breaks=c(-0.5, -0.25, 0.0, 0.25, 0.5), labels=c("-0.5", " ", "0.0", " ", "0.5"))+
   theme_bw()+
   theme(panel.grid.minor = element_blank(), 
         legend.position="none", 
-        axis.title.x=element_text(size=28, face="bold"),
-        axis.title.y=element_text(size=28, face="bold", vjust=2),
-        axis.text.y=element_text(size=24),
-        axis.text.x=element_text(size=24),
+        axis.title.x=element_text(size=30, face="bold"),
+        axis.title.y=element_text(size=30, face="bold", vjust=2),
+        axis.text.y=element_text(size=28),
+        axis.text.x=element_text(size=28),
         strip.text = element_text(size=28, face="bold"),
         panel.margin = unit(20, "mm"),
         plot.margin = unit(c(10,10,10,10), "mm"),
@@ -251,12 +251,12 @@ ggplot(data=sitedata)+
   theme(panel.grid.minor = element_line(colour = NA),
         panel.grid.major = element_line(colour = NA),
         axis.text.y= element_text(size=0),
-        axis.text.x= element_text(size=32),
+        axis.text.x= element_text(size=36),
         axis.ticks.y= element_line(size=0, colour="white"),
         legend.position="none",
         plot.title = element_text(size=0),
-        axis.title.x = element_text(size=32),
-        axis.title.y = element_text(size=32, face="bold"))+
+        axis.title.x = element_text(size=36),
+        axis.title.y = element_text(size=36, face="bold"))+
   ylab("Site")+xlab(mylab)
 dev.off()
 

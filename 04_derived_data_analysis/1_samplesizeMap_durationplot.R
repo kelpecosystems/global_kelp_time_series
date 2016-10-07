@@ -5,6 +5,7 @@
 # Jarrett Byrnes
 #
 # Changelog
+# 8/29/16 - increased font size
 # 11/3/15 - Re-ordered ecoregions for cleaner plot
 # 3/24/15 - Kira re-named ecoregions to be consistent with other plots, and re-ordered ecoregion_duration figure according to mean duration of studies
 ####################################################
@@ -52,12 +53,20 @@ realms <- rd %>% group_by(REALM) %>%
   summarise(Sites = length(REALM))
 
 jpeg("../Figures/data_properties/ecoregion_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
-makeMEOWmap(ecoregions, type="ECOREGION", fillColName="Sites", 
+ecoregion_n_map <- makeMEOWmap(ecoregions, type="ECOREGION", fillColName="Sites", 
             fillPal=rainbow(11, start=.7, end=.1), 
             trans="log10", 
             prevggplot=ggplot()+ 
               geom_polygon(data=kelpy.df, aes(x=long, y=lat, group=ECOREGION), fill="lightgrey"),
-            add.worldmap=T) + xlab("Longitude") + ylab("Latitude") 
+            add.worldmap=T) + xlab("Longitude") + ylab("Latitude") +theme_bw(base_size=20)
+print(ecoregion_n_map)
+dev.off()
+
+ggsave(plot=ecoregion_n_map, filename="../Figures/data_properties/ecoregion_samplesize_map.eps", 
+       height=11, width=14, units="in")
+
+pdf("../Figures/data_properties/ecoregion_samplesize_map.pdf", height=11, width=14)
+print(ecoregion_n_map)
 dev.off()
 
 jpeg("../Figures/data_properties/province_samplesize_map.jpg", height=768, width=1024, type = c("quartz"))
@@ -67,7 +76,7 @@ makeMEOWmap(provinces, type="PROVINCE", fillColName="Sites",
             trans="log10", 
             prevggplot=ggplot()+ 
               geom_polygon(data=kelpy.df, aes(x=long, y=lat, group=ECOREGION), fill="lightgrey"),
-            add.worldmap=T) + xlab("Longitude") + ylab("Latitude") 
+            add.worldmap=T) + xlab("Longitude") + ylab("Latitude") +theme_bw(base_size=20)
 dev.off()
 
 
@@ -77,7 +86,7 @@ makeMEOWmap(realms, type="REALM", fillColName="Sites",
             fillPal=rainbow(11, start=.7, end=.1), 
             prevggplot=ggplot()+ 
               geom_polygon(data=kelpy.df, aes(x=long, y=lat, group=ECOREGION), fill="lightgrey"),
-            add.worldmap=T) + xlab("Longitude") + ylab("Latitude")  
+            add.worldmap=T) + xlab("Longitude") + ylab("Latitude")  +theme_bw(base_size=20)
 dev.off()
 
 #############
