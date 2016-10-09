@@ -13,12 +13,11 @@ site_slopes <- read.csv("../06_HLM_output/eco_sites.csv", stringsAsFactors=FALSE
 #site_slopes
 #with(rawDataMod, paste(Study, Site, study_ID,trajectory_ID,sep="-"))
 rawDataFilt <- rawData %>%
-  mutate(SiteName =  paste(Study, Site, study_ID,trajectory_ID,sep="-")) %>%
-  mutate(SiteName = paste(SiteName, Study, sep=":")) %>%
-  select(Study, SiteName, Latitude, Longitude) %>%
-  group_by(SiteName) %>%
-  slice(1L) %>%
-  ungroup()
+  dplyr::mutate(SiteName =  paste(Study, Site, study_ID,trajectory_ID,sep="-")) %>%
+  dplyr::mutate(SiteName = paste(SiteName, Study, sep=":")) %>%
+  group_by(Study, SiteName, Latitude, Longitude, Site) %>%
+  dplyr::summarise(Start = min(year), End = max(year)) %>%
+  ungroup() 
 
 #Great, now join
 site_slopes_latlong <- left_join(site_slopes, rawDataFilt)
@@ -28,13 +27,18 @@ sum(is.na(site_slopes_latlong$Latitude))
 #Then join to 
 ssl <- site_slopes_latlong %>%
   filter(!is.na(Latitude)) %>%
-  filter(!is.na(Longitude))
-
-library(leaflet)
-
-leaflet() %>%
+  filter(!is.na(Longitude)) %>%
+  mutate(lab = paste0(Study, ", ", Site, 
+                      "<br>",Start,"-",End,
+                      "<br>slope: ", round(mean,3), " ± ", round(se,3), "SE"))
+  
+#Make the map
+siteSlopeMap <- leaflet() %>%
   addTiles() %>%
   addCircleMarkers(data = ssl, 
              lng = ~Longitude, lat =  ~Latitude,
              opacity=1,
-             color = ~colorQuantile("RdBu", ssl$mean, n = 20)(mean))
+             color = ~colorQuantile("RdBu", ssl$mean, n = 20)(mean),
+             popup = ~lab)
+
+siteSlopeMap
