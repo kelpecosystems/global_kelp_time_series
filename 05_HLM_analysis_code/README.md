@@ -24,10 +24,16 @@ Stan - for installation see https://github.com/stan-dev/rstan/wiki/RStan-Getting
 
 Note that the model is potentially run for four different geographic aggregations: 
 * World (one group, presented in the paper)
-* Realm (not presented in the paper)
-* Province (not presented in the paper)
+* Realm (not presented in the paper, currently not included)
+* Province (not presented in the paper, currently not included)
 * Ecoregion (smallest groupings, presented in the paper)
-To apply these groupings 
+
+and two different temporal inclusions:
+* Minimum three years per dataset (presented in the paper)
+* Minimum three points per dataset
+
+There are places in the code where one makes choices about which of the above to use
+
 
 ## Contact
 
