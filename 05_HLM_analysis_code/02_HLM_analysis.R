@@ -161,17 +161,19 @@ options <- theme(strip.text.x = element_text(size =6),
                  plot.margin = unit(rep(0.3, 4), "inches"))
 grouping_list <- c("Ecoregion","World")
 ### generate plots for each of the j groupings and i groups within each grouping 
-### plotting code is in a separate function file
 
-load(paste0("../06_HLM_output/1900-2015",
-            "_3_points_",Sys.Date(),".RData"))
-load(paste0("../06_HLM_output/combined_model_summaries",
-            "_3_points_",Sys.Date(),".RData"))
+### Choose which Rdata file you'd like to use to plot (uncomment one below)                                  
+### load(paste0("../06_HLM_output/1900-2015",
+###            "_3_points_",Sys.Date(),".RData"))
+### load(paste0("../06_HLM_output/combined_model_summaries",
+###            "_3_points_",Sys.Date(),".RData"))
+                                       
+### plotting code is in a separate function file
 source("plot_funs.R")
 
 
 ### ugly loop to generate all figures 
-for (j in 2:2){
+for (j in 1:2){
   ### get model results and generate site level mean predictions ###
   model_results <- model_list[[j]]$data_pred %>% 
     mutate(x= Year- mean(Year),pred=exp(colMeans(model_list[[j]]$chains$y_loc))) %>%
