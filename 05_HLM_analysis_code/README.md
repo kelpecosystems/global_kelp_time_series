@@ -34,7 +34,7 @@ and two different temporal inclusions:
 
 There are places in the code where one makes choices about which of the above to use. 
 Lines 93-95 currently set up which groupings are used. 
-Line 174 controls which figures to generate from those groupings. 
+Line 165-169 controls which figures to generate from those groupings.  Specifically, load the RData file associated with whichever cluster  you wish to plot. This code assumes the model was run on the same day.  If not, you can load it manually.  
 
 
 ## Contact
