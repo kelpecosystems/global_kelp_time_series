@@ -32,7 +32,9 @@ and two different temporal inclusions:
 * Minimum three years per dataset (presented in the paper)
 * Minimum three points per dataset
 
-There are places in the code where one makes choices about which of the above to use
+There are places in the code where one makes choices about which of the above to use. 
+Lines 93-95 currently set up which groupings are used. 
+Line 174 controls which figures to generate from those groupings. 
 
 
 ## Contact
