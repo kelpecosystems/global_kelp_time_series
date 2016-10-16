@@ -5,6 +5,8 @@ From Krumhansl, K.A., Okamoto, D.K., Rassweiler, A., Novak, M., Bolton, J.J., Ca
 
 This repository contains all of the clean data and code used to generate the analyses and figures from Krumhansl et al. We will be updating the data periodically after publication in an attempt to keep the results current. There are also more analyses here than present in the paper for those interested in exploring our results further.
 
+Note, this repository will be  updated with new data as it becomes available on a semi-regular schedule. To see the latest, visit https://github.com/kelpecosystems/global_kelp_time_series
+
 ## How to replicate our analyses
 Broadly this repository is split into ordered directories, each containing a set of steps crucial to our data analysis and figure generating pipeline. We will include readme files in each directory to help you replicate our analyses exactly and understand what is going on.
 
