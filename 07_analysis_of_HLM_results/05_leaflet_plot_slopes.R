@@ -19,6 +19,7 @@ rawDataFilt <- rawData %>%
   dplyr::summarise(Start = min(year), End = max(year)) %>%
   ungroup() 
 
+
 #Great, now join
 site_slopes_latlong <- left_join(site_slopes, rawDataFilt)
 sum(is.na(site_slopes_latlong$Latitude))
@@ -30,7 +31,8 @@ ssl <- site_slopes_latlong %>%
   filter(!is.na(Longitude)) %>%
   mutate(lab = paste0(Study, ", ", Site, 
                       "<br>",Start,"-",End,
-                      "<br>slope: ", round(mean,3), " ± ", round(se,3), "SE"))
+                      "<br>slope: ", round(mean,3), " ± ", round(se,3), "SE"))#,
+  #                    "<br><img src='https://raw.githubusercontent.com/kelpecosystems/global_kelp_time_series/master/Figures/slope_duration.jpg'>"))
   
 #Make the map
 siteSlopeMap <- leaflet() %>%
